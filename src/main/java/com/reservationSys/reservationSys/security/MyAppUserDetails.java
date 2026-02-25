@@ -1,0 +1,33 @@
+package com.reservationSys.reservationSys.security;
+
+import com.reservationSys.reservationSys.Domain.user.AppUser;
+import org.jspecify.annotations.Nullable;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.List;
+
+public class MyAppUserDetails implements UserDetails {
+
+    private final AppUser appUser;
+
+    public MyAppUserDetails(AppUser appUser) {
+        this.appUser = appUser;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
+
+    @Override
+    public @Nullable String getPassword() {
+        return appUser.getPasswordHash();
+    }
+
+    @Override
+    public String getUsername() {
+        return appUser.getEmail();
+    }
+}
