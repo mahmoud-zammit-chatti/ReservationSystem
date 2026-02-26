@@ -19,7 +19,7 @@ public class MyAppUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(@NonNull String email) {
+    public MyAppUserDetails loadUserByUsername(@NonNull String email) {
         AppUser appUser = appUserRepo.findByEmail(email).orElseThrow(
                 ()-> new RessourceNotFound("User not found with email: "+email)
         );

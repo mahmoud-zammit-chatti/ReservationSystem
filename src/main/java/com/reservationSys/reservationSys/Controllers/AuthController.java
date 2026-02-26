@@ -44,6 +44,24 @@ public class AuthController {
         return ResponseEntity.ok().body(authService.refresh(request.getRefreshToken()));
     }
 
+    @PostMapping("/verify-email")
+    public ResponseEntity<String> verifyEmail(){
+        return ResponseEntity.ok("Email verified successfully");
+    }
+
+    @PostMapping("/resend-verification-email")
+    public ResponseEntity<String> resendVerificationEmail(){
+        return ResponseEntity.ok("Verification email resent successfully");
+    }
+
+    @PostMapping("/verify-phone")
+    public ResponseEntity<String> verifyPhone(){
+        return ResponseEntity.ok("Phone verified successfully");
+    }
+    @PostMapping("/resend-verification-phone")
+    public ResponseEntity<String> resendVerificationPhone(){
+        return ResponseEntity.ok("Verification phone resent successfully");
+    }
 
 
 }

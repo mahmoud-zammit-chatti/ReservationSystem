@@ -3,12 +3,12 @@ package com.reservationSys.reservationSys.Services.auth;
 
 import com.reservationSys.reservationSys.Domain.user.AppUser;
 import com.reservationSys.reservationSys.Domain.user.RefreshToken;
-import com.reservationSys.reservationSys.Repositories.AppUserRepo;
 import com.reservationSys.reservationSys.Repositories.RefreshTokenRepo;
 import com.reservationSys.reservationSys.exceptions.AuthenticationError;
 import com.reservationSys.reservationSys.exceptions.RessourceNotFound;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -17,31 +17,35 @@ import java.util.UUID;
 public class RefreshTokenService {
 
     private final RefreshTokenRepo refreshTokenRepo;
-    private final AppUserRepo appUserRepo;
 
-    @Value("#{${REFRESH_TOKEN_EXPIRATION_DAYS} * 24 * 60 * 60000}")
+    @Value("#{${REFRESH_TOKEN_EXPIRATION_DAYS} * 24L * 60L * 60L * 10000L}")
     private Long refreshTokenExpiration;
     @Value("${REFRESH_TOKEN_SECRET}")
     private String refreshTokenSecret;
 
-    public RefreshTokenService(RefreshTokenRepo refreshTokenRepo, AppUserRepo appUserRepo) {
+    public RefreshTokenService(RefreshTokenRepo refreshTokenRepo) {
         this.refreshTokenRepo = refreshTokenRepo;
-        this.appUserRepo = appUserRepo;
     }
 
 
-    public RefreshToken generateRefreshToken(AppUser user){
 
-        RefreshToken generated = new RefreshToken();
-        generated.setToken(UUID.randomUUID().toString());
-        generated.setExpiresAt(Instant.now().plusMillis(refreshTokenExpiration));
-        generated.setIsRevoked(false);
-        generated.setId(user.getId().toString());
-        generated.setCreatedAt(Instant.now());
+
+    @Transactional
+    public RefreshToken generateRefreshToken(AppUser user){
+        RefreshToken generated = RefreshToken.builder()
+                .token(UUID.randomUUID().toString())
+                        .expiresAt(Instant.now().plusMillis(refreshTokenExpiration))
+                                .isRevoked(false)
+                                        .createdAt(Instant.now())
+                                                .userId(user.getId())
+                                                        .build();
+
+
         refreshTokenRepo.save(generated);
         return generated;
     }
 
+    @Transactional
     public RefreshToken validateRefreshToken(String token){
 
         RefreshToken refreshToken = refreshTokenRepo.findByToken(token)
@@ -58,6 +62,8 @@ public class RefreshTokenService {
         return refreshToken;
     }
 
+
+    @Transactional
     public RefreshToken rotateRefreshToken(String token){
         RefreshToken refreshToken = refreshTokenRepo.findByToken(token)
                 .orElseThrow(()-> new RessourceNotFound("Refresh token not found"));
@@ -69,10 +75,20 @@ public class RefreshTokenService {
         if(refreshToken.getIsRevoked()){
             throw new AuthenticationError("Refresh token revoked");
         }
-        String userId = refreshToken.getUserId();
-        AppUser user = appUserRepo.findById(Long.parseLong(userId)).orElseThrow(()-> new RessourceNotFound("User not found"));
+        // Revoke old token first
         refreshToken.setIsRevoked(true);
-        return generateRefreshToken(user);
+        refreshTokenRepo.save(refreshToken);
+
+        // Generate new token with same userId
+        RefreshToken newToken = RefreshToken.builder()
+                .token(UUID.randomUUID().toString())
+                .expiresAt(Instant.now().plusMillis(refreshTokenExpiration))
+                .isRevoked(false)
+                .createdAt(Instant.now())
+                .userId(refreshToken.getUserId())
+                .build();
+        refreshTokenRepo.save(newToken);
+        return newToken;
     }
 
 

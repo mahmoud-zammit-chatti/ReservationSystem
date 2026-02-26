@@ -9,12 +9,12 @@ import com.reservationSys.reservationSys.Domain.user.AppUser;
 import com.reservationSys.reservationSys.Domain.user.RefreshToken;
 import com.reservationSys.reservationSys.Repositories.AppUserRepo;
 import com.reservationSys.reservationSys.Repositories.RefreshTokenRepo;
-import com.reservationSys.reservationSys.exceptions.AuthenticationError;
 import com.reservationSys.reservationSys.exceptions.IncorrectCredentials;
 import com.reservationSys.reservationSys.exceptions.RessourceNotFound;
 import com.reservationSys.reservationSys.exceptions.UserAlreadyExists;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -35,6 +35,7 @@ public class AuthService {
         this.refreshTokenRepo = refreshTokenRepo;
     }
 
+    @Transactional
     public UserRegistrationResponseDTO register(RegisterUserDTO registerUserDTO) {
         if(appUserRepo.existsByEmail(registerUserDTO.getEmail())){
             throw new UserAlreadyExists("User with email: "+registerUserDTO.getEmail()+" already exists");
@@ -57,6 +58,7 @@ public class AuthService {
         return responseDTO;
     }
 
+    @Transactional
     public AuthResponseDTO login(LoginUserDTO user){
         AppUser appUser = appUserRepo.findByEmail(user.getEmail()).orElseThrow(()-> new IncorrectCredentials("User not found"));
         if(!bCryptPasswordEncoder.matches(user.getPassword(),appUser.getPasswordHash())){
@@ -69,12 +71,9 @@ public class AuthService {
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken.getToken())
                 .build();
-
-
-
-
     }
 
+    @Transactional
     public String logout(String token){
         RefreshToken refreshToken = refreshTokenRepo.findByToken(token)
                 .orElseThrow(() -> new RessourceNotFound("Refresh token not found"));
@@ -83,12 +82,12 @@ public class AuthService {
         return "Logged out successfully";
     }
 
+    @Transactional
     public AuthResponseDTO refresh(String token){
-        RefreshToken oldRefreshToken = refreshTokenService.validateRefreshToken(token);
-        String userId = oldRefreshToken.getUserId();
-        AppUser user = appUserRepo.findById(Long.parseLong(userId))
-                .orElseThrow(() -> new RessourceNotFound("User not found"));
+        // rotateRefreshToken already validates, no need to call validateRefreshToken separately
         RefreshToken newRefreshToken = refreshTokenService.rotateRefreshToken(token);
+        AppUser user = appUserRepo.findById(newRefreshToken.getUserId())
+                .orElseThrow(() -> new RessourceNotFound("User not found"));
         String jwtToken = jwtService.generateToken(null, user.getEmail());
 
         return AuthResponseDTO.builder()

@@ -1,6 +1,7 @@
 package com.reservationSys.reservationSys.Services.auth;
 
 
+import com.reservationSys.reservationSys.exceptions.AuthenticationError;
 import com.reservationSys.reservationSys.security.MyAppUserDetails;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -65,7 +66,7 @@ public class JwtService {
         String username = extractUsername(token);
         Date expiration = extractExpiration(token);
         if( expiration==null || expiration.before(new Date())){
-            throw new BadCredentialsException("Token expired");
+            throw new AuthenticationError("Token expired");
         }
         if( username==null || !username.equals(userDetails.getUsername())){
             throw new BadCredentialsException("Invalid token");
