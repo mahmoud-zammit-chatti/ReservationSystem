@@ -5,6 +5,10 @@ public enum NotificationType {
     OTP,
     REMINDER,
     NO_SHOW_WARNING,
-    PORT_DISRUPTION
+    PORT_DISRUPTION,
+    CAR_REMOVED,
+    CAR_VERIFIED,
+    CAR_VERIFICATION_FAILED,
+    CHECK_IN
 
 }

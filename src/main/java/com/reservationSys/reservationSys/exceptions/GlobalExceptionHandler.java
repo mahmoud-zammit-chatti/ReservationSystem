@@ -71,5 +71,18 @@ public class GlobalExceptionHandler {
                         null
                 ));
     }
+    @ExceptionHandler(SmsDeliveryException.class)
+    public ResponseEntity<ApiError> handleSmsDeliveryException(SmsDeliveryException ex){
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value()).body(
+                new ApiError(
+                        Instant.now(),
+                        HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                        HttpStatus.INTERNAL_SERVER_ERROR.name(),
+                        ex.getMessage(),
+                        request.getRequestURI(),
+                        null
+                )
+        );
+    }
 
 }

@@ -1,14 +1,12 @@
 package com.reservationSys.reservationSys.Domain.reservation;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -26,17 +24,28 @@ public class Reservation {
     private UUID carId;
     private UUID portId;
 
+    private String contactNumber;
+
     private LocalDateTime startTime;
 
     private Duration duration;
 
     private LocalDateTime endTime;
 
-    private ReservationStatus reservationStatus=ReservationStatus.PENDING_OTP;
+    @Enumerated(EnumType.STRING)
+    private ReservationStatus reservationStatus;
 
+    @Enumerated(EnumType.STRING)
     private CancellationReason cancellationReason;
 
-    private LocalDateTime createdAt;
+    @Enumerated(EnumType.STRING)
+    private PenaltyType penaltyType;
 
-    private LocalDateTime checkedInAt;
+    private boolean penaltyWaived=false;
+
+    private boolean lateCancel=false;
+
+    private Instant createdAt;
+
+    private Instant checkedInAt;
 }

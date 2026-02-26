@@ -1,14 +1,12 @@
 package com.reservationSys.reservationSys.Domain.car;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -31,9 +29,10 @@ public class Car {
 
     private String tesla_uid;
 
-    private CarStatus status=CarStatus.UNVERIFIED;
+    @Enumerated(EnumType.STRING)
+    private CarStatus status;
 
-    private LocalDateTime registeredAt;
+    private Instant registeredAt;
 
-    private LocalDateTime verifiedAt;
+    private Instant verifiedAt;
 }

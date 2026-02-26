@@ -5,17 +5,24 @@ import com.reservationSys.reservationSys.DTOs.AuthResponseDTO;
 import com.reservationSys.reservationSys.DTOs.LoginUserDTO;
 import com.reservationSys.reservationSys.DTOs.RegisterUserDTO;
 import com.reservationSys.reservationSys.DTOs.UserRegistrationResponseDTO;
+import com.reservationSys.reservationSys.Domain.otp.OtpPurpose;
 import com.reservationSys.reservationSys.Domain.user.AppUser;
 import com.reservationSys.reservationSys.Domain.user.RefreshToken;
+import com.reservationSys.reservationSys.Domain.user.UserStatus;
 import com.reservationSys.reservationSys.Repositories.AppUserRepo;
 import com.reservationSys.reservationSys.Repositories.RefreshTokenRepo;
+import com.reservationSys.reservationSys.Services.OTP.OtpService;
+import com.reservationSys.reservationSys.Services.OTP.TwilioService;
 import com.reservationSys.reservationSys.exceptions.IncorrectCredentials;
 import com.reservationSys.reservationSys.exceptions.RessourceNotFound;
 import com.reservationSys.reservationSys.exceptions.UserAlreadyExists;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Service
@@ -25,14 +32,18 @@ public class AuthService {
     private final PasswordEncoder bCryptPasswordEncoder;
     private final RefreshTokenService refreshTokenService;
     private final RefreshTokenRepo refreshTokenRepo;
+    private final OtpService otpService;
+    private final TwilioService twilioService;
 
-    public AuthService(JwtService jwtService, AppUserRepo appUserRepo, PasswordEncoder bCryptPasswordEncoder, RefreshTokenService refreshTokenService, RefreshTokenRepo refreshTokenRepo) {
+    public AuthService(JwtService jwtService, AppUserRepo appUserRepo, PasswordEncoder bCryptPasswordEncoder, RefreshTokenService refreshTokenService, RefreshTokenRepo refreshTokenRepo, OtpService otpService, TwilioService twilioService) {
         this.jwtService = jwtService;
         this.appUserRepo = appUserRepo;
 
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.refreshTokenService = refreshTokenService;
         this.refreshTokenRepo = refreshTokenRepo;
+        this.otpService = otpService;
+        this.twilioService = twilioService;
     }
 
     @Transactional
@@ -47,7 +58,10 @@ public class AuthService {
                 .email(registerUserDTO.getEmail())
                 .phoneNumber(registerUserDTO.getPhoneNumber())
                 .passwordHash(hash)
-                .createdAt(LocalDateTime.now())
+                .status(UserStatus.INACTIVE)
+                .emailVerifiedAt(null)
+                .phoneNumberVerifiedAt(null)
+                .createdAt(Instant.now())
                 .build();
         UserRegistrationResponseDTO responseDTO = UserRegistrationResponseDTO.builder()
                 .email( registerUserDTO.getEmail())
@@ -55,6 +69,20 @@ public class AuthService {
                 .fullName( registerUserDTO.getFullName())
                 .build();
         appUserRepo.save(user);
+
+        String code = otpService.generateOtpForUser(
+                user.getId(),
+                OtpPurpose.ACCOUNT_VERIFICATION
+        );
+        TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        twilioService.sendSms(user.getPhoneNumber(), code);
+                    }
+                }
+        );
+
         return responseDTO;
     }
 

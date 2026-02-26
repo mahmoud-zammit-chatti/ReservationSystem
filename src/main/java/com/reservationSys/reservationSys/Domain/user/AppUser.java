@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -29,7 +30,14 @@ public class AppUser {
 
     private String passwordHash;
 
-    private LocalDateTime createdAt;
+    @Enumerated(EnumType.STRING)
+    private UserStatus status;
+
+    private Instant emailVerifiedAt;
+
+    private Instant phoneNumberVerifiedAt;
+
+    private Instant createdAt;
 
 
 }
