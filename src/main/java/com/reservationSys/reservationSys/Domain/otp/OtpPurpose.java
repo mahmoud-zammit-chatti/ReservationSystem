@@ -2,8 +2,9 @@ package com.reservationSys.reservationSys.Domain.otp;
 
 public enum OtpPurpose {
 
-    ACCOUNT_VERIFICATION,
-    RESERVATION_CONFIRMATION
+    ACCOUNT_PHONE_VERIFICATION,
+    RESERVATION_CONFIRMATION,
+    EMAIL_VERIFICATION
 
 
 

@@ -1,6 +1,7 @@
 package com.reservationSys.reservationSys.security;
 
 import com.reservationSys.reservationSys.Domain.user.AppUser;
+import com.reservationSys.reservationSys.Domain.user.UserStatus;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,6 +15,10 @@ public class MyAppUserDetails implements UserDetails {
 
     public MyAppUserDetails(AppUser appUser) {
         this.appUser = appUser;
+    }
+
+    public AppUser getAppUser() {
+        return appUser;
     }
 
     @Override
@@ -30,4 +35,11 @@ public class MyAppUserDetails implements UserDetails {
     public String getUsername() {
         return appUser.getEmail();
     }
+
+    @Override
+    public boolean isEnabled() {
+        return appUser.getStatus() == UserStatus.ACTIVE;
+    }
 }
+
+

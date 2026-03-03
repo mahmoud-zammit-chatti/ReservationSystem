@@ -1,13 +1,15 @@
 package com.reservationSys.reservationSys.Controllers;
 
 
-import com.reservationSys.reservationSys.DTOs.AuthResponseDTO;
-import com.reservationSys.reservationSys.DTOs.LoginUserDTO;
-import com.reservationSys.reservationSys.DTOs.RefreshTokenRequestDTO;
-import com.reservationSys.reservationSys.DTOs.RegisterUserDTO;
-import com.reservationSys.reservationSys.DTOs.UserRegistrationResponseDTO;
+import com.reservationSys.reservationSys.DTOs.*;
+import com.reservationSys.reservationSys.Domain.user.AppUser;
 import com.reservationSys.reservationSys.Services.auth.AuthService;
+import com.reservationSys.reservationSys.security.MyAppUserDetails;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +26,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserRegistrationResponseDTO> register(@RequestBody RegisterUserDTO registerUserDTO ){
+    public ResponseEntity<UserRegistrationResponseDTO> register ( @Valid @RequestBody RegisterUserDTO registerUserDTO ){
 
         return ResponseEntity.ok( authService.register(registerUserDTO));
     }
@@ -45,21 +47,29 @@ public class AuthController {
     }
 
     @PostMapping("/verify-email")
-    public ResponseEntity<String> verifyEmail(){
+    public ResponseEntity<String> verifyEmail(@Valid @RequestBody EmailVerificationDTO request){
+        authService.verifyEmail(request.getEmail(), request.getCode());
         return ResponseEntity.ok("Email verified successfully");
     }
 
     @PostMapping("/resend-verification-email")
-    public ResponseEntity<String> resendVerificationEmail(){
+    public ResponseEntity<String> resendVerificationEmail(@Valid @RequestBody EmailVerificationRequestDTO request){
+        authService.resendEmailVerification(request);
         return ResponseEntity.ok("Verification email resent successfully");
     }
 
+    @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/verify-phone")
-    public ResponseEntity<String> verifyPhone(){
+    public ResponseEntity<String> verifyPhone(@AuthenticationPrincipal MyAppUserDetails user, @Valid @RequestBody PhoneVerificationDTO request){
+        AppUser appUser = user.getAppUser();
+        authService.verifyPhoneNumber(appUser,request.getCode());
         return ResponseEntity.ok("Phone verified successfully");
     }
+
     @PostMapping("/resend-verification-phone")
-    public ResponseEntity<String> resendVerificationPhone(){
+    public ResponseEntity<String> resendVerificationPhone(@AuthenticationPrincipal MyAppUserDetails user){
+        AppUser appUser = user.getAppUser();
+        authService.resendPhoneVerification(appUser);
         return ResponseEntity.ok("Verification phone resent successfully");
     }
 

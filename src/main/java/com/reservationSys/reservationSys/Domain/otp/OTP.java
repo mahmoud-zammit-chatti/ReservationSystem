@@ -38,7 +38,4 @@ public class OTP {
     @Enumerated(EnumType.STRING)
     private OtpStatus status=OtpStatus.PENDING;
 
-
-
-
 }

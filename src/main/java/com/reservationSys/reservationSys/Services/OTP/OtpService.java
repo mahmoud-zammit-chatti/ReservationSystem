@@ -50,13 +50,13 @@ public class OtpService {
     }
     public String generateOtpForReservation(UUID reservationId, OtpPurpose purpose){
 
-        List<OTP> oldOTPs= otpRepo.findAllByReservationIdAndStatus(reservationId, OtpStatus.PENDING);
-
-        oldOTPs.forEach(otp -> {
-            otp.setStatus(OtpStatus.INVALIDATED);
-
-        });
-        otpRepo.saveAll(oldOTPs);
+//        List<OTP> oldOTPs= otpRepo.findAllByReservationIdAndStatus(reservationId, OtpStatus.PENDING);
+//
+//        oldOTPs.forEach(otp -> {
+//            otp.setStatus(OtpStatus.INVALIDATED);
+//
+//        });
+//        otpRepo.saveAll(oldOTPs);
 
         OTP otp = OTP.builder()
                 .code(String.format("%06d", new Random().nextInt(999999)))
@@ -71,6 +71,27 @@ public class OtpService {
         otpRepo.save(otp);
         return otp.getCode();
     }
+
+    public boolean verifyOtpForUser(UUID userId, String code, OtpPurpose purpose){
+        OTP otp = otpRepo.findByUserIdAndPurposeAndStatus(userId, purpose, OtpStatus.PENDING)
+                .orElseThrow(() -> new RuntimeException("No pending OTP found for user with id: " + userId));
+
+        if(otp.getExpiresAt().isBefore(Instant.now())){
+            otp.setStatus(OtpStatus.EXPIRED);
+            otpRepo.save(otp);
+            throw new RuntimeException("OTP has expired, Please request for another OTP code");
+        }
+        System.out.println(otp.getCode() + " " + code);
+        if(otp.getCode().equals(code)){
+            otp.setStatus(OtpStatus.VERIFIED);
+            otp.setVerifiedAt(Instant.now());
+            otpRepo.save(otp);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 
 
 }

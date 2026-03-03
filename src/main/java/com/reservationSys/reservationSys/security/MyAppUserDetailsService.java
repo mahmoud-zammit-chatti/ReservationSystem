@@ -21,12 +21,15 @@ public class MyAppUserDetailsService implements UserDetailsService {
     @Override
     public MyAppUserDetails loadUserByUsername(@NonNull String email) {
         AppUser appUser = appUserRepo.findByEmail(email).orElseThrow(
-                ()-> new RessourceNotFound("User not found with email: "+email)
+                ()-> new RessourceNotFound("If this email exists, a verification code has been sent")
         );
         return new MyAppUserDetails(appUser);
     }
 
     public AppUser findByEmail(String email){
-        return appUserRepo.findByEmail(email).orElseThrow(()-> new RessourceNotFound("User not found with email: "+email));
+        return appUserRepo.findByEmail(email).orElseThrow(()-> new RessourceNotFound("If this email exists, a verification code has been sent"));
     }
+
+
+
 }

@@ -1,6 +1,7 @@
 package com.reservationSys.reservationSys.Controllers;
 
 
+import com.reservationSys.reservationSys.Services.EmailService;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +17,8 @@ import com.twilio.Twilio;
 @RequestMapping("api/v1/otp")
 public class OtpController {
 
+    private final EmailService emailService;
+
     @Value("${TWILIO_ACCOUNT_SID}")
     private String twilioAccountSid;
 
@@ -25,18 +28,9 @@ public class OtpController {
     @Value("${TWILIO_PHONE_NUMBER}")
     private String twilioPhoneNumber;
 
-    @GetMapping("/sms")
-    public ResponseEntity<String> getOtp(){
-        Twilio.init(twilioAccountSid, twilioAuthToken);
-
-        Message.creator(
-                new PhoneNumber("+21640646012"),
-                new PhoneNumber(twilioPhoneNumber),
-                "hello 7awel 7awel"
-                )
-                .create();
-        return ResponseEntity.ok("OTP sent successfully");
-
+    public OtpController(EmailService emailService) {
+        this.emailService = emailService;
     }
+
 
 }

@@ -45,7 +45,8 @@ public interface OtpRepo extends JpaRepository<OTP, UUID> {
     );
 
     // Find most recent OTP for a user (to check 2min resend cooldown)
-    Optional<OTP> findTopByUserIdOrderByCreatedAtDesc(
-            UUID userId
+    Optional<OTP> findTopByUserIdAndPurposeOrderByCreatedAtDesc(
+            UUID userId,
+            OtpPurpose purpose
     );
 }
