@@ -21,9 +21,6 @@ public class AppUserController {
         return ResponseEntity.ok(appUser.getUsername());
     }
 
-    @GetMapping("/verify-user")
-    public ResponseEntity<String> verifyUser(AppUser appUser){
-        return ResponseEntity.ok("User verified successfully");
-    }
+
 
 }

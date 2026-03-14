@@ -2,6 +2,8 @@ package com.reservationSys.reservationSys.exceptions;
 
 
 
+import com.reservationSys.reservationSys.exceptions.CarExceptions.DuplicateChassisNumberException;
+import com.reservationSys.reservationSys.exceptions.CarExceptions.DuplicatePlateNumberException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
@@ -173,4 +175,32 @@ public class GlobalExceptionHandler {
                 )
         );
         }
+
+        @ExceptionHandler(DuplicateChassisNumberException.class)
+    public ResponseEntity<ApiError> handleDuplicateChassisNumberException(DuplicateChassisNumberException ex){
+        return ResponseEntity.status(HttpStatus.CONFLICT.value()).body(
+                new ApiError(
+                        Instant.now(),
+                        HttpStatus.CONFLICT.value(),
+                        HttpStatus.CONFLICT.name(),
+                        ex.getMessage(),
+                        request.getRequestURI(),
+                        null
+                )
+        );
+        }
+
+            @ExceptionHandler(DuplicatePlateNumberException.class)
+    public ResponseEntity<ApiError> handleDuplicatePlateNumberException(DuplicatePlateNumberException ex){
+        return ResponseEntity.status(HttpStatus.CONFLICT.value()).body(
+                new ApiError(
+                        Instant.now(),
+                        HttpStatus.CONFLICT.value(),
+                        HttpStatus.CONFLICT.name(),
+                        ex.getMessage(),
+                        request.getRequestURI(),
+                        null
+                )
+        );
+            }
 }

@@ -27,7 +27,7 @@ public class Car {
 
     private String chassisNumber;
 
-    private String tesla_uid;
+    private String carteGriseUrl;
 
     @Enumerated(EnumType.STRING)
     private CarStatus status;

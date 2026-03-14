@@ -1,7 +1,8 @@
 package com.reservationSys.reservationSys.Controllers;
 
 
-import com.reservationSys.reservationSys.Services.EmailService;
+
+import com.reservationSys.reservationSys.Services.auth.EmailService;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;
 import org.springframework.beans.factory.annotation.Value;

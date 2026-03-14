@@ -9,7 +9,6 @@ import com.reservationSys.reservationSys.Domain.user.UserStatus;
 import com.reservationSys.reservationSys.Repositories.AppUserRepo;
 import com.reservationSys.reservationSys.Repositories.OtpRepo;
 import com.reservationSys.reservationSys.Repositories.RefreshTokenRepo;
-import com.reservationSys.reservationSys.Services.EmailService;
 import com.reservationSys.reservationSys.Services.OTP.OtpService;
 import com.reservationSys.reservationSys.Services.OTP.TwilioService;
 import com.reservationSys.reservationSys.exceptions.*;

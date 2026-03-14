@@ -1,4 +1,4 @@
-package com.reservationSys.reservationSys.Services;
+package com.reservationSys.reservationSys.Services.auth;
 
 
 import com.reservationSys.reservationSys.Domain.otp.OTP;
@@ -14,7 +14,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.UUID;
 
 @Service
 public class EmailService {

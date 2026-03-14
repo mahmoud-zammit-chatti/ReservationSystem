@@ -8,6 +8,7 @@ class ReservationSysApplicationTests {
 
 	@Test
 	void contextLoads() {
+
 	}
 
 }
