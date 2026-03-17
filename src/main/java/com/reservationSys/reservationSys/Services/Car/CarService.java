@@ -25,14 +25,12 @@ import java.util.UUID;
 public class CarService {
 
     private final CarRepo carRepo;
-    private final CarVerificationService carVerificationService;
     private final AzureBlobStorageService azureBlobStorageService;
     private final ApplicationEventPublisher eventPublisher;
 
 
-    public CarService(CarRepo carRepo, CarVerificationService carVerificationService, AzureBlobStorageService azureBlobStorageService, ApplicationEventPublisher eventPublisher) {
+    public CarService(CarRepo carRepo, AzureBlobStorageService azureBlobStorageService, ApplicationEventPublisher eventPublisher) {
         this.carRepo = carRepo;
-        this.carVerificationService = carVerificationService;
         this.azureBlobStorageService = azureBlobStorageService;
         this.eventPublisher = eventPublisher;
     }
@@ -67,7 +65,7 @@ public class CarService {
             carRepo.save(carToAdd);
 
             // Asynchronously verify the car after saving it to the database
-        //carVerificationService.verifyCar(carToAdd.getId());
+
         eventPublisher.publishEvent(new CarCreatedEvent(carToAdd.getId()));
 
 

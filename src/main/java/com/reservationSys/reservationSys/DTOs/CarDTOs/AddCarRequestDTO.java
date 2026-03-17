@@ -9,8 +9,8 @@ import org.springframework.web.multipart.MultipartFile;
 public class AddCarRequestDTO {
 
     @Pattern(
-        regexp = "^(\\d{2,3} تونس \\d{4}|\\d{5,6} نت)$",
-        message = "Invalid plate number format. Accepted formats: NN تونس NNNN, NNN تونس NNNN, NNNNN نت, NNNNNN نت"
+        regexp = "^(\\d{2,3} تونس \\d{3,4}|\\d{5,6} نت)$",
+        message = "Invalid plate number format. Accepted formats: NN تونس NNN, NNN تونس NNN, NN تونس NNNN, NNN تونس NNNN, NNNNN نت, NNNNNN نت"
     )
     private String plateNumber;
 

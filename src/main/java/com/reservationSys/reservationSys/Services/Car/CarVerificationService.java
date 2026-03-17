@@ -40,12 +40,14 @@ public class CarVerificationService {
 
         String expectedPlate = normalizePlate(carToVerify.getPlateNumber());
         String normalizedExtractedPlate = normalizePlate(extractedPlate);
+        
+        
 
         if(extractedVin==null || extractedPlate==null){
             log.warn("OCR failed to extract VIN or plate for car {}", carId);
         }
 
-        if(Objects.equals(extractedVin, carToVerify.getChassisNumber()) && Objects.equals(normalizedExtractedPlate, expectedPlate))  {
+        if(Objects.equals(extractedVin, carToVerify.getChassisNumber()) && platesMatch(expectedPlate, normalizedExtractedPlate))  {
             log.info("Car with id {} verified successfully.", carId);
             //send in app notification here as well
             carUpdateService.updateCarStatus(carId,CarStatus.VERIFIED);
@@ -67,6 +69,36 @@ public class CarVerificationService {
                 .replace('۵','5').replace('۶','6').replace('۷','7').replace('۸','8').replace('۹','9');
 
         return normalized.replaceAll("[^\\p{IsArabic}0-9]", "");
+    }
+
+    private boolean platesMatch(String expectedPlate, String extractedPlate) {
+        if (Objects.equals(expectedPlate, extractedPlate)) {
+            return true;
+        }
+
+        String reversedExpected = reverseStandardTunisPlate(expectedPlate);
+        return reversedExpected != null && Objects.equals(reversedExpected, extractedPlate);
+    }
+
+    private String reverseStandardTunisPlate(String normalizedPlate) {
+        if (normalizedPlate == null) {
+            return null;
+        }
+
+        int tunisiaIndex = normalizedPlate.indexOf("تونس");
+        if (tunisiaIndex <= 0) {
+            return null;
+        }
+
+        String left = normalizedPlate.substring(0, tunisiaIndex);
+        String right = normalizedPlate.substring(tunisiaIndex + "تونس".length());
+
+        // Apply reverse tolerance only for standard Tunis plates.
+        if (!left.matches("\\d{2,3}") || !right.matches("\\d{3,4}")) {
+            return null;
+        }
+
+        return right + "تونس" + left;
     }
 
 }
