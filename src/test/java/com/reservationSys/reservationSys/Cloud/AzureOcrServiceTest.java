@@ -70,7 +70,8 @@ class AzureOcrServiceTest {
     @Test
     void testExtractVin() {
         String imageUrl = "https://evreservationstorage.blob.core.windows.net/carte-grise-images/caretGriseTest.png";
-        String vin = ocrService.extractVin(imageUrl);
+        AnalyzeResult result = ocrService.getAnalyzeResult(imageUrl);
+        String vin = ocrService.extractVin(result);
         System.out.println("Extracted VIN: " + vin);
         assertNotNull(vin);
         assertEquals("1HGBH41JXMN109186", vin);

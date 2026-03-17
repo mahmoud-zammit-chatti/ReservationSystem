@@ -10,12 +10,16 @@ import com.reservationSys.reservationSys.Domain.user.AppUser;
 import com.reservationSys.reservationSys.Repositories.CarRepo;
 import com.reservationSys.reservationSys.exceptions.CarExceptions.DuplicateChassisNumberException;
 import com.reservationSys.reservationSys.exceptions.CarExceptions.DuplicatePlateNumberException;
+import com.reservationSys.reservationSys.exceptions.RessourceNotFound;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class CarService {
@@ -23,14 +27,18 @@ public class CarService {
     private final CarRepo carRepo;
     private final CarVerificationService carVerificationService;
     private final AzureBlobStorageService azureBlobStorageService;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public CarService(CarRepo carRepo, CarVerificationService carVerificationService, AzureBlobStorageService azureBlobStorageService) {
+
+    public CarService(CarRepo carRepo, CarVerificationService carVerificationService, AzureBlobStorageService azureBlobStorageService, ApplicationEventPublisher eventPublisher) {
         this.carRepo = carRepo;
         this.carVerificationService = carVerificationService;
         this.azureBlobStorageService = azureBlobStorageService;
+        this.eventPublisher = eventPublisher;
     }
 
 
+    @Transactional
     public AddCarResponseDTO addCar(AppUser authUser,AddCarRequestDTO car) {
 
         Optional<Car> firstCheck = carRepo.findByPlateNumber(car.getPlateNumber());
@@ -59,13 +67,18 @@ public class CarService {
             carRepo.save(carToAdd);
 
             // Asynchronously verify the car after saving it to the database
-        carVerificationService.verifyCar(carToAdd.getId());
+        //carVerificationService.verifyCar(carToAdd.getId());
+        eventPublisher.publishEvent(new CarCreatedEvent(carToAdd.getId()));
 
 
-    return AddCarResponseDTO.builder()
+
+        return AddCarResponseDTO.builder()
             .ChassisNumber(car.getChassisNumber())
             .PlateNumber(carToAdd.getPlateNumber())
             .RegisteredAt(carToAdd.getRegisteredAt())
             .build();
     }
+
+
+
 }

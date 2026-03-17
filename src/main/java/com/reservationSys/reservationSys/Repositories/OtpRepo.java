@@ -20,6 +20,8 @@ public interface OtpRepo extends JpaRepository<OTP, UUID> {
             OtpStatus status
     );
 
+
+
     // Find the active OTP for a reservation (reservation confirmation)
     Optional<OTP> findByReservationIdAndPurposeAndStatus(
             UUID reservationId,
@@ -34,9 +36,10 @@ public interface OtpRepo extends JpaRepository<OTP, UUID> {
     );
 
     // Find all pending OTPs for a user (to invalidate on resend)
-    List<OTP> findAllByUserIdAndStatus(
+    List<OTP> findAllByUserIdAndStatusAndPurpose(
             UUID userId,
-            OtpStatus status
+            OtpStatus status,
+            OtpPurpose purpose
     );
 
     // Find most recent OTP for a reservation (to check 2min resend cooldown)

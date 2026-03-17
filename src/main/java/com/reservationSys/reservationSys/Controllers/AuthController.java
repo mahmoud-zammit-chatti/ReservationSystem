@@ -67,6 +67,8 @@ public class AuthController {
     }
 
     @PostMapping("/resend-verification-phone")
+    @SecurityRequirement(name = "Bearer Authentication")
+
     public ResponseEntity<String> resendVerificationPhone(@AuthenticationPrincipal MyAppUserDetails user){
         AppUser appUser = user.getAppUser();
         authService.resendPhoneVerification(appUser);

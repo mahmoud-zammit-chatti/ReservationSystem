@@ -3,6 +3,7 @@ package com.reservationSys.reservationSys.Services.auth;
 
 import com.reservationSys.reservationSys.DTOs.*;
 import com.reservationSys.reservationSys.Domain.otp.OTP;
+import com.reservationSys.reservationSys.Domain.otp.OtpPurpose;
 import com.reservationSys.reservationSys.Domain.user.AppUser;
 import com.reservationSys.reservationSys.Domain.user.RefreshToken;
 import com.reservationSys.reservationSys.Domain.user.UserStatus;
@@ -22,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Optional;
-import java.util.Random;
 
 import static com.reservationSys.reservationSys.Domain.otp.OtpPurpose.ACCOUNT_PHONE_VERIFICATION;
 import static com.reservationSys.reservationSys.Domain.otp.OtpPurpose.EMAIL_VERIFICATION;
@@ -81,7 +81,10 @@ public class AuthService {
                 user.getId(),
                 ACCOUNT_PHONE_VERIFICATION
         );
-        String codeEmail = String.format("%06d", new Random().nextInt(999999));
+        String codeEmail = otpService.generateOtpForUser(
+                user.getId(),
+                EMAIL_VERIFICATION
+        );
 
 
         try {
@@ -217,7 +220,7 @@ public class AuthService {
         if (phoneOtpOpt.isPresent() && phoneOtpOpt.get().getCreatedAt().plusSeconds(120).isAfter(Instant.now())) {
             throw new TooManyRequestsException("Please wait before requesting another verification code for phone number: " + appUser.getPhoneNumber());
         } else {
-            String code = otpService.generateOtpForUser(appUser.getId(), ACCOUNT_PHONE_VERIFICATION);
+            String code = otpService.generateOtpForUser(appUser.getId(), OtpPurpose.ACCOUNT_PHONE_VERIFICATION);
             try {
                 twilioService.sendSms(appUser.getPhoneNumber(), code);
             } catch (ApiException e) {

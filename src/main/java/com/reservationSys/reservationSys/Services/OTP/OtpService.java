@@ -6,6 +6,7 @@ import com.reservationSys.reservationSys.Domain.otp.OtpPurpose;
 import com.reservationSys.reservationSys.Domain.otp.OtpStatus;
 import com.reservationSys.reservationSys.Repositories.OtpRepo;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.TemporalUnit;
@@ -23,15 +24,15 @@ public class OtpService {
         this.otpRepo = otpRepo;
     }
 
+    @Transactional
     public String generateOtpForUser(UUID userId, OtpPurpose purpose){
 
-//        List<OTP> oldOTPs= otpRepo.findAllByUserIdAndStatus(userId, OtpStatus.PENDING);
-//
-//        oldOTPs.forEach(otp -> {
-//            otp.setStatus(OtpStatus.INVALIDATED);
-//
-//        });
-//        otpRepo.saveAll(oldOTPs);
+        List<OTP> oldOTPs= otpRepo.findAllByUserIdAndStatusAndPurpose(userId, OtpStatus.PENDING, purpose);
+
+        oldOTPs.forEach(otp -> {
+            otp.setStatus(OtpStatus.INVALIDATED);
+        });
+        otpRepo.saveAll(oldOTPs);
 
         OTP otp = OTP.builder()
                 .code(String.format("%06d", new Random().nextInt(999999)))

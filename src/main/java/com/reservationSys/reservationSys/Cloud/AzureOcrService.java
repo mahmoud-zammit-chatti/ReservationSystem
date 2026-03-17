@@ -18,6 +18,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,12 +35,14 @@ public class AzureOcrService {
     @Value("${azure.storage.connection-string}")
     private String storageConnectionString;
 
-    Pattern VIN_PATTERN = Pattern.compile("[A-HJ-NPR-Z0-9]{17}");
+    private static final Pattern VIN_PATTERN = Pattern.compile("[A-HJ-NPR-Z0-9]{17}");
 
-
-    Pattern PLATE_PATTERN = Pattern.compile(
-            "\\d{2,3}\\s*تونس\\s*\\d{4}|\\d{5,6}\\s*ن\\s*ت"
-    );
+    private static final Pattern PLATE_STANDARD = Pattern.compile("(\\d{2,3})تونس(\\d{4})");
+    private static final Pattern PLATE_STANDARD_REVERSED = Pattern.compile("تونس(\\d{4})(\\d{2,3})");
+    private static final Pattern PLATE_NET = Pattern.compile("(\\d{5,6})نت");
+    private static final Pattern PLATE_NET_REVERSED = Pattern.compile("نت(\\d{5,6})");
+    private static final Pattern NET_DIGITS = Pattern.compile("(\\d{5,6})");
+    private static final Pattern PLATE_LABEL = Pattern.compile("(PLAQUE|PLATE|IMMATRICULATION|IMMAT|NUMERO|NUMBER|رقم|لوحة)", Pattern.CASE_INSENSITIVE);
 
     private DocumentIntelligenceClient client;
     private BlobServiceClient blobServiceClient;
@@ -54,8 +58,7 @@ public class AzureOcrService {
                 .buildClient();
     }
 
-    public String extractVin(String imageUrl){
-        AnalyzeResult result = getAnalyzeResult(imageUrl);
+    public String extractVin(AnalyzeResult result){
         for (DocumentPage page : result.getPages()) {
             for (DocumentLine line : page.getLines()) {
                 // Remove spaces and dashes that OCR may insert within the VIN
@@ -70,23 +73,34 @@ public class AzureOcrService {
         return null;
     }
 
-    public String extractPlateNumber(String imageUrl){
-        AnalyzeResult result = getAnalyzeResult(imageUrl);
-        for(DocumentPage page : result.getPages()){
-            for(DocumentLine line : page.getLines()){
-                String cleaned = line.getContent().replaceAll("[\\s\\-]", "");
-                Matcher matcher = PLATE_PATTERN.matcher(cleaned);
+    public String extractPlateNumber(AnalyzeResult result){
+        StringBuilder mergedNormalized = new StringBuilder();
 
-                if(matcher.find()){
-                    return matcher.group();
+        for (DocumentPage page : result.getPages()) {
+            for (DocumentLine line : page.getLines()) {
+                String rawLine = line.getContent();
+                String normalizedLine = normalizePlateText(rawLine);
+
+                if (!normalizedLine.isEmpty()) {
+                    Optional<String> directMatch = findPlateInNormalizedText(normalizedLine);
+                    if (directMatch.isPresent()) {
+                        return directMatch.get();
+                    }
+                    mergedNormalized.append(normalizedLine);
+                }
+
+                Optional<String> contextualNet = findContextualNetPlate(rawLine);
+                if (contextualNet.isPresent()) {
+                    return contextualNet.get();
                 }
             }
         }
 
-        return null;
+        // Fallback for OCR that splits the plate across multiple lines.
+        return findPlateInNormalizedText(mergedNormalized.toString()).orElse(null);
     }
 
-    private AnalyzeResult getAnalyzeResult(String imageUrl) {
+    public AnalyzeResult getAnalyzeResult(String imageUrl) {
         byte[] fileBytes = downloadBlob(imageUrl);
         AnalyzeDocumentOptions options = new AnalyzeDocumentOptions(fileBytes);
         SyncPoller<AnalyzeOperationDetails, AnalyzeResult> poller =
@@ -116,6 +130,69 @@ public class AzureOcrService {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         blobClient.downloadStream(outputStream);
         return outputStream.toByteArray();
+    }
+
+    private String normalizePlateText(String rawText) {
+        if (rawText == null) {
+            return "";
+        }
+
+        String normalized = toAsciiDigits(rawText)
+                .toUpperCase(Locale.ROOT)
+                .replaceAll("[\\s\\-_/.:]", "");
+
+        // Keep only Arabic letters and digits so label noise does not break matching.
+        return normalized.replaceAll("[^\\p{IsArabic}0-9]", "");
+    }
+
+    private Optional<String> findPlateInNormalizedText(String normalizedText) {
+        if (normalizedText == null || normalizedText.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Matcher standard = PLATE_STANDARD.matcher(normalizedText);
+        if (standard.find()) {
+            return Optional.of(standard.group(1) + "تونس" + standard.group(2));
+        }
+
+        Matcher standardReversed = PLATE_STANDARD_REVERSED.matcher(normalizedText);
+        if (standardReversed.find()) {
+            return Optional.of(standardReversed.group(2) + "تونس" + standardReversed.group(1));
+        }
+
+        Matcher net = PLATE_NET.matcher(normalizedText);
+        if (net.find()) {
+            return Optional.of(net.group(1) + "نت");
+        }
+
+        Matcher netReversed = PLATE_NET_REVERSED.matcher(normalizedText);
+        if (netReversed.find()) {
+            return Optional.of(netReversed.group(1) + "نت");
+        }
+
+        return Optional.empty();
+    }
+
+    private Optional<String> findContextualNetPlate(String rawLine) {
+        if (rawLine == null || !PLATE_LABEL.matcher(rawLine).find()) {
+            return Optional.empty();
+        }
+
+        String asciiDigitsOnlyLine = toAsciiDigits(rawLine);
+        Matcher netDigits = NET_DIGITS.matcher(asciiDigitsOnlyLine);
+        if (netDigits.find()) {
+            return Optional.of(netDigits.group(1) + "نت");
+        }
+
+        return Optional.empty();
+    }
+
+    private String toAsciiDigits(String input) {
+        return input
+                .replace('٠', '0').replace('١', '1').replace('٢', '2').replace('٣', '3').replace('٤', '4')
+                .replace('٥', '5').replace('٦', '6').replace('٧', '7').replace('٨', '8').replace('٩', '9')
+                .replace('۰', '0').replace('۱', '1').replace('۲', '2').replace('۳', '3').replace('۴', '4')
+                .replace('۵', '5').replace('۶', '6').replace('۷', '7').replace('۸', '8').replace('۹', '9');
     }
 
 }
