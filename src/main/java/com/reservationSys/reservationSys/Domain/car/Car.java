@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
@@ -28,6 +27,10 @@ public class Car {
     private String chassisNumber;
 
     private String carteGriseUrl;
+
+    private int verificationAttempts=0;
+
+    private Instant blockedAt;
 
     @Enumerated(EnumType.STRING)
     private CarStatus status;

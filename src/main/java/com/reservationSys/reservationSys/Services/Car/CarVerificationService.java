@@ -50,9 +50,11 @@ public class CarVerificationService {
         if(Objects.equals(extractedVin, carToVerify.getChassisNumber()) && platesMatch(expectedPlate, normalizedExtractedPlate))  {
             log.info("Car with id {} verified successfully.", carId);
             //send in app notification here as well
-            carUpdateService.updateCarStatus(carId,CarStatus.VERIFIED);
+            carUpdateService.updateCarStatus(carId,true);
         }else{
             log.warn("Car with id {} verification failed. Extracted VIN: {}, Extracted Plate: {}", carId, extractedVin, extractedPlate);
+            carUpdateService.updateCarStatus(carId,false);
+
             //sending in app notification or email notification in the future and adding that to the notificationLog
         }
     }

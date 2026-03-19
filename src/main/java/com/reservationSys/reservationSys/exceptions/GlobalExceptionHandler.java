@@ -2,10 +2,11 @@ package com.reservationSys.reservationSys.exceptions;
 
 
 
+import com.reservationSys.reservationSys.exceptions.CarExceptions.BlockedCarException;
+import com.reservationSys.reservationSys.exceptions.CarExceptions.CarAlreadyVerifiedException;
 import com.reservationSys.reservationSys.exceptions.CarExceptions.DuplicateChassisNumberException;
 import com.reservationSys.reservationSys.exceptions.CarExceptions.DuplicatePlateNumberException;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -202,5 +205,36 @@ public class GlobalExceptionHandler {
                         null
                 )
         );
-            }
+    }
+
+    @ExceptionHandler(BlockedCarException.class)
+    public ResponseEntity<ApiError> handleCorruptedCarException(BlockedCarException ex){
+
+        return ResponseEntity.status(HttpStatus.LOCKED.value()).body(
+                new ApiError(
+                        Instant.now(),
+                        HttpStatus.LOCKED.value(),
+                        HttpStatus.LOCKED.name(),
+                        ex.getMessage(),
+                        request.getRequestURI(),
+                        List.of(new ValidationErrorDetail("hoursRemaining", Long.toString(ex.getHoursRemaining())), new ValidationErrorDetail("minutesRemaining", Long.toString(ex.getMinutesRemaining())))
+                )
+        );
+
+    }
+
+    @ExceptionHandler(CarAlreadyVerifiedException.class)
+    public ResponseEntity<ApiError> handleCarAlreadyVerifiedException(CarAlreadyVerifiedException ex){
+        return ResponseEntity.status(HttpStatus.CONFLICT.value()).body(
+                new ApiError(
+                        Instant.now(),
+                        HttpStatus.CONFLICT.value(),
+                        HttpStatus.CONFLICT.name(),
+                        ex.getMessage(),
+                        request.getRequestURI(),
+                       null
+                )
+        );
+    }
+
 }
