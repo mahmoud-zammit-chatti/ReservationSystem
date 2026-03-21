@@ -1,9 +1,6 @@
 package com.reservationSys.reservationSys.Controllers;
 
-import com.reservationSys.reservationSys.DTOs.CarDTOs.AddCarRequestDTO;
-import com.reservationSys.reservationSys.DTOs.CarDTOs.AddCarResponseDTO;
-import com.reservationSys.reservationSys.DTOs.CarDTOs.CarVerificationRequestDTO;
-import com.reservationSys.reservationSys.DTOs.CarDTOs.ResendCarVerificationResponseDTO;
+import com.reservationSys.reservationSys.DTOs.CarDTOs.*;
 import com.reservationSys.reservationSys.Domain.car.Car;
 import com.reservationSys.reservationSys.Domain.user.AppUser;
 import com.reservationSys.reservationSys.Services.Car.CarService;
@@ -16,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -54,5 +53,34 @@ public class CarController {
 
     return ResponseEntity.accepted().body(carService.resendVerification(currentUser,carId,request.getCarteGrise()));
     }
+
+    @GetMapping("/my-cars")
+    @SecurityRequirement(name="Bearer Authentication")
+    public ResponseEntity<ArrayList<CarResponseDTO>> getMyCars(@AuthenticationPrincipal MyAppUserDetails userDetails){
+        AppUser currentUser = userDetails.getAppUser();
+        return ResponseEntity.ok(carService.getCarsForUser(currentUser));
+    }
+
+    @GetMapping("/{carId}/my-car")
+    @SecurityRequirement(name="Bearer Authentication")
+    public ResponseEntity<CarResponseDTO> getMyCar(@AuthenticationPrincipal MyAppUserDetails userDetails, @PathVariable UUID carId){
+        AppUser currentUser = userDetails.getAppUser();
+        return ResponseEntity.ok(carService.getCarByIdForUser(currentUser,carId));
+    }
+
+    @DeleteMapping("/delete-all-cars")
+    @SecurityRequirement(name="Bearer Authentication")
+    public ResponseEntity<List<CarResponseDTO>> deleteAllCarsForUser(@AuthenticationPrincipal MyAppUserDetails userDetails){
+        AppUser currentUser = userDetails.getAppUser();
+        return ResponseEntity.ok(carService.deleteAllCarsForUser(currentUser));
+    }
+
+    @DeleteMapping("/{carId}/delete")
+    @SecurityRequirement(name="Bearer Authentication")
+    public ResponseEntity<CarResponseDTO> deleteCarByIdForUser(@AuthenticationPrincipal MyAppUserDetails userDetails, @PathVariable UUID carId){
+        AppUser currentUser = userDetails.getAppUser();
+        return ResponseEntity.ok(carService.deleteCarByIdForUser(currentUser,carId));
+     }
+
 
 }

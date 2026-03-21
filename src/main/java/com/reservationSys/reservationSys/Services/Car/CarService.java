@@ -4,6 +4,7 @@ package com.reservationSys.reservationSys.Services.Car;
 import com.reservationSys.reservationSys.Cloud.AzureBlobStorageService;
 import com.reservationSys.reservationSys.DTOs.CarDTOs.AddCarRequestDTO;
 import com.reservationSys.reservationSys.DTOs.CarDTOs.AddCarResponseDTO;
+import com.reservationSys.reservationSys.DTOs.CarDTOs.CarResponseDTO;
 import com.reservationSys.reservationSys.DTOs.CarDTOs.ResendCarVerificationResponseDTO;
 import com.reservationSys.reservationSys.Domain.car.Car;
 import com.reservationSys.reservationSys.Domain.car.CarStatus;
@@ -21,6 +22,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -112,6 +115,62 @@ public class CarService {
 
     }
 
+    public ArrayList<CarResponseDTO> getCarsForUser(AppUser currentUser) {
+        List<Car> cars= carRepo.findAllByUserId(currentUser.getId());
+        ArrayList<CarResponseDTO> carResponseDTOS = new ArrayList<>();
+        for (Car car : cars){
+            carResponseDTOS.add(new CarResponseDTO(
+                    car.getPlateNumber(),
+                    car.getStatus(),
+                    car.getRegisteredAt()
+            ));
+        }
+        return carResponseDTOS;
+    }
 
 
+    public CarResponseDTO getCarByIdForUser(AppUser currentUser, UUID carId) {
+        Car car = carRepo.findByIdAndUserId(carId,currentUser.getId()).orElseThrow(()->new RessourceNotFound("No har with this id is found for this user"));
+        return new CarResponseDTO(
+                car.getPlateNumber(),
+                car.getStatus(),
+                car.getRegisteredAt()
+        );
+    }
+
+    //soft delete to implement for the future
+    public List<CarResponseDTO> deleteAllCarsForUser(AppUser currentUser) {
+        List<Car> deletedCars = carRepo.deleteAllByUserId(currentUser.getId());
+        List<CarResponseDTO> response = new ArrayList<>();
+        if(deletedCars.isEmpty()) {
+            throw new RessourceNotFound("No cars to delete, you don't have any car registered");
+        }else {
+            for (Car car : deletedCars) {
+               // azureBlobStorageService.deleteImage(car.getCarteGriseUrl()); to implement
+                response.add(
+                        new  CarResponseDTO(
+                                car.getPlateNumber(),
+                                car.getStatus(),
+                                car.getRegisteredAt()
+                        )
+                );
+            }
+        }
+
+        return response;
+
+    }
+
+
+    public CarResponseDTO deleteCarByIdForUser(AppUser currentUser, UUID carId) {
+
+        Car deletedCar = carRepo.deleteByIdAndUserId(carId,currentUser.getId()).orElseThrow(()->new RessourceNotFound("No car with this id is found for this user"));
+        //azureBlobStorageService.deleteImage(deletedCar.getCarteGriseUrl()); to implement
+        return new CarResponseDTO(
+                deletedCar.getPlateNumber(),
+                deletedCar.getStatus(),
+                deletedCar.getRegisteredAt()
+        );
+
+    }
 }

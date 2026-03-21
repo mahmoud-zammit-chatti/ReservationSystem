@@ -1,7 +1,9 @@
 package com.reservationSys.reservationSys.Services.Car;
 
+import com.reservationSys.reservationSys.DTOs.CarDTOs.CarResponseDTO;
 import com.reservationSys.reservationSys.Domain.car.Car;
 import com.reservationSys.reservationSys.Domain.car.CarStatus;
+import com.reservationSys.reservationSys.Domain.user.AppUser;
 import com.reservationSys.reservationSys.Repositories.CarRepo;
 import com.reservationSys.reservationSys.exceptions.CarExceptions.BlockedCarException;
 import com.reservationSys.reservationSys.exceptions.RessourceNotFound;
@@ -10,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -53,5 +57,7 @@ public class CarUpdateService {
                 throw new BlockedCarException("Car is still blocked.", hoursRemaining, minutesRemaining);            }
 
         }
+
+
 
 }
