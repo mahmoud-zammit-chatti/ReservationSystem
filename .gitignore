@@ -13,7 +13,7 @@ target/
 .springBeans
 .sts4-cache
 # Ignore application.properties, which may contain sensitive information such as database credentials #
-src/main/resources/application.properties
+src/main/resources/application-local.properties
 
 ### IntelliJ IDEA ###
 .idea
