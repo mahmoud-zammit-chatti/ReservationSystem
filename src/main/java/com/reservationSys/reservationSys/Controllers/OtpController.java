@@ -20,13 +20,13 @@ public class OtpController {
 
     private final EmailService emailService;
 
-    @Value("${TWILIO_ACCOUNT_SID}")
+    @Value("${twilio.account-sid}")
     private String twilioAccountSid;
 
-    @Value("${TWILIO_AUTH_TOKEN}")
+    @Value("${twilio.auth-token}")
     private String twilioAuthToken;
 
-    @Value("${TWILIO_PHONE_NUMBER}")
+    @Value("${twilio.phone-number}")
     private String twilioPhoneNumber;
 
     public OtpController(EmailService emailService) {
