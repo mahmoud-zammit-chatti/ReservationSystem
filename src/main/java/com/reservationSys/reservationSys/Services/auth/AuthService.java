@@ -6,6 +6,7 @@ import com.reservationSys.reservationSys.Domain.otp.OTP;
 import com.reservationSys.reservationSys.Domain.otp.OtpPurpose;
 import com.reservationSys.reservationSys.Domain.user.AppUser;
 import com.reservationSys.reservationSys.Domain.user.RefreshToken;
+import com.reservationSys.reservationSys.Domain.user.UserRole;
 import com.reservationSys.reservationSys.Domain.user.UserStatus;
 import com.reservationSys.reservationSys.Repositories.AppUserRepo;
 import com.reservationSys.reservationSys.Repositories.OtpRepo;
@@ -66,6 +67,7 @@ public class AuthService {
                 .phoneNumber("+216" + registerUserDTO.getPhoneNumber())//adding the ability to choose country code in the future
                 .passwordHash(hash)
                 .status(UserStatus.INACTIVE)
+                .userRole(UserRole.USER)
                 .emailVerifiedAt(null)
                 .phoneNumberVerifiedAt(null)
                 .createdAt(Instant.now())

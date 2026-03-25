@@ -22,11 +22,13 @@ public class Station {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private UUID stationId;
 
     private String name;
 
-    private String address;
+    private String city;
+
+    private String town;
 
     private double latitude;
 

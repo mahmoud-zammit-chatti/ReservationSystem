@@ -1,5 +1,6 @@
 package com.reservationSys.reservationSys.Domain.port;
 
+import com.reservationSys.reservationSys.Domain.station.Station;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,7 +19,9 @@ public class Port{
     @GeneratedValue(strategy=GenerationType.UUID)
     private UUID id;
 
-    private UUID stationId;
+    @ManyToOne(fetch = FetchType.LAZY,optional = false)
+    @JoinColumn(name = "station_id", nullable = false)
+    private Station station;
 
     private String name;
 

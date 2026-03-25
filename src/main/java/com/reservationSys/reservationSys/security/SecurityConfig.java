@@ -2,6 +2,7 @@ package com.reservationSys.reservationSys.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -49,6 +50,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(
                         auth -> auth
                                 .requestMatchers("/api/v1/auth/register","/api/v1/auth/login","/api/v1/auth/refresh","/api/v1/auth/verify-email","/api/v1/auth/resend-verification-email","/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/v1/stations/**").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.PUT, "/api/v1/stations/**").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.DELETE, "/api/v1/stations/**").hasRole("ADMIN")
                                 .requestMatchers("/api/v1/auth/verify-phone","/api/v1/auth/resend-verification-phone")
                                 .access(
                                         (authSupplier,context)->{
@@ -88,7 +92,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:3000")); // Vite default port
+        config.setAllowedOrigins(List.of("http://localhost:3000"));
         config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

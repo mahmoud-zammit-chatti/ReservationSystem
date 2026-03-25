@@ -36,6 +36,10 @@ public class AppUser {
     @NotNull
     private String passwordHash;
 
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private UserRole userRole;
+
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 
