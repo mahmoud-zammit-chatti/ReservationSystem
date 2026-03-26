@@ -120,6 +120,7 @@ public class CarService {
         ArrayList<CarResponseDTO> carResponseDTOS = new ArrayList<>();
         for (Car car : cars){
             carResponseDTOS.add(new CarResponseDTO(
+                    car.getId(),
                     car.getPlateNumber(),
                     car.getStatus(),
                     car.getRegisteredAt()
@@ -132,6 +133,7 @@ public class CarService {
     public CarResponseDTO getCarByIdForUser(AppUser currentUser, UUID carId) {
         Car car = carRepo.findByIdAndUserId(carId,currentUser.getId()).orElseThrow(()->new RessourceNotFound("No har with this id is found for this user"));
         return new CarResponseDTO(
+                car.getId(),
                 car.getPlateNumber(),
                 car.getStatus(),
                 car.getRegisteredAt()
@@ -149,6 +151,7 @@ public class CarService {
                // azureBlobStorageService.deleteImage(car.getCarteGriseUrl()); to implement
                 response.add(
                         new  CarResponseDTO(
+                                car.getId(),
                                 car.getPlateNumber(),
                                 car.getStatus(),
                                 car.getRegisteredAt()
@@ -167,6 +170,7 @@ public class CarService {
         Car deletedCar = carRepo.deleteByIdAndUserId(carId,currentUser.getId()).orElseThrow(()->new RessourceNotFound("No car with this id is found for this user"));
         //azureBlobStorageService.deleteImage(deletedCar.getCarteGriseUrl()); to implement
         return new CarResponseDTO(
+                deletedCar.getId(),
                 deletedCar.getPlateNumber(),
                 deletedCar.getStatus(),
                 deletedCar.getRegisteredAt()

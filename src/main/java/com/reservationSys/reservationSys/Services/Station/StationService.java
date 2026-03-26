@@ -12,6 +12,7 @@ import com.reservationSys.reservationSys.exceptions.RessourceNotFound;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,6 +41,9 @@ public class StationService {
         stationRepo.save(station);
 
         return StationResponseDTO.builder()
+                .latitude(station.getLatitude())
+                .longitude(station.getLongitude())
+                .stationId(station.getStationId())
                 .stationName(station.getName())
                 .cityName(station.getCity())
                 .townName(station.getTown())
@@ -52,6 +56,9 @@ public class StationService {
         Station station = stationRepo.findById(id).orElseThrow(()-> new RessourceNotFound("station with this this not found"));
 
         return StationResponseDTO.builder()
+                .stationId(station.getStationId())
+                .latitude(station.getLatitude())
+                .longitude(station.getLongitude())
                 .stationName(station.getName())
                 .cityName(station.getCity())
                 .townName(station.getTown())
@@ -63,19 +70,37 @@ public class StationService {
         Station deleted = stationRepo.deleteByStationId(id).orElseThrow(()-> new RessourceNotFound("station with this this not found"));
 
         return StationResponseDTO.builder()
+                .stationId(deleted.getStationId())
+                .latitude(deleted.getLatitude())
+                .longitude(deleted.getLongitude())
                 .stationName(deleted.getName())
                 .cityName(deleted.getCity())
                 .townName(deleted.getTown())
                 .createdAt(deleted.getCreatedAt())
                 .build();
     }
+
+    public List<StationResponseDTO> getAllStations() {
+        List<Station> stations = stationRepo.findAll();
+        List<StationResponseDTO> response = new ArrayList<>();
+        for (Station station : stations) {
+            response.add(StationResponseDTO.builder()
+                    .stationId(station.getStationId())
+                    .latitude(station.getLatitude())
+                    .longitude(station.getLongitude())
+                    .stationName(station.getName())
+                    .cityName(station.getCity())
+                    .townName(station.getTown())
+                    .createdAt(station.getCreatedAt())
+                    .build());
+        }
+        return response;
+    }
     public StationDetailedResponseDTO getStationAndPorts(UUID stationId){
 
         StationResponseDTO station = getStation(stationId);
         List<Port> ports = portRepo.findAllByStation_StationId(stationId);
-        if(ports.isEmpty()){
-            throw new RessourceNotFound("no ports found for this station");
-        }
+
         return StationDetailedResponseDTO.builder()
                 .station(station)
                 .ports(ports)

@@ -7,11 +7,12 @@ import lombok.Data;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 @AllArgsConstructor
 @Data
 public class CarResponseDTO {
-
+    private UUID carId;
     private String plateNumber;
     private CarStatus status;
     private Instant registrationDate;

@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.Map;
 import java.util.Optional;
 
 import static com.reservationSys.reservationSys.Domain.otp.OtpPurpose.ACCOUNT_PHONE_VERIFICATION;
@@ -128,7 +129,10 @@ public class AuthService {
             throw new IncorrectCredentials("Incorrect Password for user: " + user.getEmail());
         }
         RefreshToken refreshToken = refreshTokenService.generateRefreshToken(appUser);
-        String jwtToken = jwtService.generateToken(null, user.getEmail());
+        String jwtToken = jwtService.generateToken(
+                Map.of("role", appUser.getUserRole().name()),
+                appUser.getEmail()
+        );
 
         return AuthResponseDTO.builder()
                 .accessToken(jwtToken)
@@ -151,7 +155,10 @@ public class AuthService {
         RefreshToken newRefreshToken = refreshTokenService.rotateRefreshToken(token);
         AppUser user = appUserRepo.findById(newRefreshToken.getUserId())
                 .orElseThrow(() -> new RessourceNotFound("User not found"));
-        String jwtToken = jwtService.generateToken(null, user.getEmail());
+        String jwtToken = jwtService.generateToken(
+                Map.of("role", user.getUserRole().name()),
+                user.getEmail()
+        );
 
         return AuthResponseDTO.builder()
                 .refreshToken(newRefreshToken.getToken())
