@@ -42,6 +42,8 @@ public class StationController {
         return ResponseEntity.ok(stationService.getStationAndPorts(id));
     }
 
+    @GetMapping("/close")
+
     @DeleteMapping("/{id}")
     public ResponseEntity<StationResponseDTO> deleteStation(@PathVariable UUID id){
         return ResponseEntity.ok(stationService.deleteStation(id));

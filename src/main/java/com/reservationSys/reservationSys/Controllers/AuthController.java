@@ -1,13 +1,12 @@
 package com.reservationSys.reservationSys.Controllers;
 
 
-import com.reservationSys.reservationSys.DTOs.*;
+import com.reservationSys.reservationSys.DTOs.AuthDTO.*;
 import com.reservationSys.reservationSys.Domain.user.AppUser;
 import com.reservationSys.reservationSys.Services.auth.AuthService;
 import com.reservationSys.reservationSys.security.MyAppUserDetails;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
-import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;

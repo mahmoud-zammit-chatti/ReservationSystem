@@ -1,4 +1,4 @@
-package com.reservationSys.reservationSys.DTOs;
+package com.reservationSys.reservationSys.DTOs.AuthDTO;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

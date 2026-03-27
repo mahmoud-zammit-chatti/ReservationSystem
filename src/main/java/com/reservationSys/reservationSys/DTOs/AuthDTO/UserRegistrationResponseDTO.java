@@ -1,7 +1,6 @@
-package com.reservationSys.reservationSys.DTOs;
+package com.reservationSys.reservationSys.DTOs.AuthDTO;
 
 
-import com.twilio.rest.api.v2010.account.Message;
 import lombok.Builder;
 import lombok.Data;
 
