@@ -1,9 +1,7 @@
 package com.reservationSys.reservationSys.Controllers;
 
 
-import com.reservationSys.reservationSys.DTOs.StationDTO.StationRequestDTO;
-import com.reservationSys.reservationSys.DTOs.StationDTO.StationDetailedResponseDTO;
-import com.reservationSys.reservationSys.DTOs.StationDTO.StationResponseDTO;
+import com.reservationSys.reservationSys.DTOs.StationDTO.*;
 import com.reservationSys.reservationSys.Services.Station.StationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,7 +40,10 @@ public class StationController {
         return ResponseEntity.ok(stationService.getStationAndPorts(id));
     }
 
-    @GetMapping("/close")
+    @GetMapping("/near-me")
+    public ResponseEntity<List<StationNearMeResponseDTO>> getStationNearMe(@ModelAttribute StationNearMeRequestDTO request) {
+        return ResponseEntity.ok(stationService.getStationsInRadius(request));
+    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<StationResponseDTO> deleteStation(@PathVariable UUID id){

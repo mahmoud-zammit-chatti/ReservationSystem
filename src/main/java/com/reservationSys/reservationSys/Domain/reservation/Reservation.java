@@ -26,11 +26,11 @@ public class Reservation {
 
     private String contactNumber;
 
-    private LocalDateTime startTime;
+    private Instant startTime;
 
     private Duration duration;
 
-    private LocalDateTime endTime;
+    private Instant endTime;
 
     @Enumerated(EnumType.STRING)
     private ReservationStatus reservationStatus;
