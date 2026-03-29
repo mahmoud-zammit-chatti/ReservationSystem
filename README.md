@@ -7,7 +7,7 @@
 ![Twilio](https://img.shields.io/badge/Twilio-SMS-F22F46?style=flat-square)
 ![Security](https://img.shields.io/badge/Security-JWT%20%2B%20RBAC-black?style=flat-square)
 
-A production-oriented REST API backend for an electric vehicle charging reservation platform, targeting Tesla vehicles in Tunisia.
+A production-oriented REST API backend for an electric vehicle charging reservation platform, targeting eletric vehicles in Tunisia.
 
 The system handles secure user onboarding, AI-powered vehicle identity verification via OCR, geospatial station discovery, port reservation with OTP confirmation, and NFC-based check-in — all built on a clean, layered Spring Boot architecture with real cloud integrations.
 
