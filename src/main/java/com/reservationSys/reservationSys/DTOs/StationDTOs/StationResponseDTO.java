@@ -1,4 +1,4 @@
-package com.reservationSys.reservationSys.DTOs.StationDTO;
+package com.reservationSys.reservationSys.DTOs.StationDTOs;
 
 import lombok.Builder;
 import lombok.Data;

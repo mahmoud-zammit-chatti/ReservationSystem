@@ -1,4 +1,4 @@
-package com.reservationSys.reservationSys.DTOs.AuthDTO;
+package com.reservationSys.reservationSys.DTOs.AuthDTOs;
 
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;

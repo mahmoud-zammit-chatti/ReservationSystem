@@ -1,4 +1,4 @@
-package com.reservationSys.reservationSys.DTOs.StationDTO;
+package com.reservationSys.reservationSys.DTOs.StationDTOs;
 
 import com.reservationSys.reservationSys.Domain.port.Port;
 import lombok.Builder;

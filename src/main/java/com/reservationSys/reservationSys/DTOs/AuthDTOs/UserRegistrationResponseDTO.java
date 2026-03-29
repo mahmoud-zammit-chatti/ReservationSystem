@@ -1,4 +1,4 @@
-package com.reservationSys.reservationSys.DTOs.AuthDTO;
+package com.reservationSys.reservationSys.DTOs.AuthDTOs;
 
 
 import lombok.Builder;

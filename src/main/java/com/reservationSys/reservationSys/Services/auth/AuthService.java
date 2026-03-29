@@ -1,7 +1,7 @@
 package com.reservationSys.reservationSys.Services.auth;
 
 
-import com.reservationSys.reservationSys.DTOs.AuthDTO.*;
+import com.reservationSys.reservationSys.DTOs.AuthDTOs.*;
 import com.reservationSys.reservationSys.Domain.otp.OTP;
 import com.reservationSys.reservationSys.Domain.otp.OtpPurpose;
 import com.reservationSys.reservationSys.Domain.user.AppUser;

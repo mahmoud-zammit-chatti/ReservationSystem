@@ -1,7 +1,7 @@
 package com.reservationSys.reservationSys.Controllers;
 
 
-import com.reservationSys.reservationSys.DTOs.AuthDTO.*;
+import com.reservationSys.reservationSys.DTOs.AuthDTOs.*;
 import com.reservationSys.reservationSys.Domain.user.AppUser;
 import com.reservationSys.reservationSys.Services.auth.AuthService;
 import com.reservationSys.reservationSys.security.MyAppUserDetails;
