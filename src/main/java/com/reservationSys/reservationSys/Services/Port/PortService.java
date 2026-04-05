@@ -4,8 +4,10 @@ package com.reservationSys.reservationSys.Services.Port;
 import com.reservationSys.reservationSys.DTOs.PortDTOs.PortAddRequestDTO;
 import com.reservationSys.reservationSys.DTOs.PortDTOs.PortResponseDTO;
 import com.reservationSys.reservationSys.DTOs.PortDTOs.PortUpdateRequestDTO;
+import com.reservationSys.reservationSys.DTOs.PortDTOs.TimeSlotsDTO;
 import com.reservationSys.reservationSys.Domain.port.Port;
 import com.reservationSys.reservationSys.Domain.port.PortStatus;
+import com.reservationSys.reservationSys.Domain.reservation.Duration;
 import com.reservationSys.reservationSys.Domain.reservation.Reservation;
 import com.reservationSys.reservationSys.Domain.reservation.ReservationStatus;
 import com.reservationSys.reservationSys.Domain.station.Station;
@@ -20,7 +22,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,6 +41,9 @@ public class PortService {
     private final PortRepo portRepo;
     private final ReservationRepo reservationRepo;
     private final PortStatusUpdateService portStatusUpdateService;
+
+   private final  List<ReservationStatus> ACTIVESTATUS = List.of(ReservationStatus.CONFIRMED,ReservationStatus.CHECKED_IN,ReservationStatus.PENDING_OTP);
+
 
     public PortService(StationRepo stationRepo, PortRepo portRepo, ReservationRepo reservationRepo, PortStatusUpdateService portStatusUpdateService) {
         this.stationRepo = stationRepo;
@@ -110,8 +120,7 @@ public class PortService {
         // if yes it can't be deleted but its status will be updated to expiring_soon and then it can't accept any
         // new reservations and set a scheduled job to delete the port when its reservations passed
 
-        List<ReservationStatus> status = List.of(ReservationStatus.CONFIRMED,ReservationStatus.CHECKED_IN,ReservationStatus.PENDING_OTP);
-        List<Reservation> reservationList = reservationRepo.findAllByPortIdAndReservationStatusIn(portId,status);
+        List<Reservation> reservationList = reservationRepo.findAllByPortIdAndReservationStatusIn(portId,ACTIVESTATUS);
         if(!reservationList.isEmpty()){
 
         portStatusUpdateService.updatePortStatus(portId,stationId);
@@ -143,5 +152,52 @@ public class PortService {
             log("Some ports were deleted by a scheduled service !");
         }
 
+    }
+
+    @Transactional
+    public List<TimeSlotsDTO> getAvailableTimeSlots(UUID stationId, UUID portId, LocalDate date, Duration duration) {
+
+
+        Port port = portRepo.findByIdAndStation_StationId(portId, stationId).orElseThrow(()-> new RessourceNotFound("can't find the requested port"));
+
+        Instant dayStart = date.atStartOfDay(ZoneId.systemDefault()).toInstant();
+
+
+        Instant dayEnd = dayStart.plus(1, ChronoUnit.DAYS);
+
+        List<String> statuses = ACTIVESTATUS.stream().map(Enum::name).toList();
+
+        List<Reservation> reservationList = reservationRepo.findByPortStationAndDate(portId,stationId,statuses,dayStart,dayEnd);
+
+
+        List<TimeSlotsDTO> result = new ArrayList<>();
+
+        for(int i=0;i<=23;i++){
+            Instant candidateStart = date.atTime(i, 0).atZone(ZoneId.systemDefault()).toInstant();
+            Instant candidateEnd = candidateStart.plus(duration.getHours(),ChronoUnit.HOURS);
+            if(isTimeSLotAvailable(candidateStart,candidateEnd,reservationList)){
+                result.add(
+                        TimeSlotsDTO.builder()
+                                .portId(portId)
+                                .portName(port.getName())
+                                .startTime(i)
+                                .endTime(candidateEnd.atZone(ZoneId.systemDefault()).getHour())
+                                .build()
+                );
+            }
+        }
+
+        return result;
+    }
+
+    @Transactional
+    protected boolean isTimeSLotAvailable(Instant startTime, Instant endTime ,List<Reservation> reservationList){
+        for(Reservation res : reservationList){
+            if(
+                    res.getStartTime().isBefore(endTime) &&
+                    res.getEndTime().isAfter(startTime)
+            )return false;
+        }
+        return true;
     }
 }

@@ -3,13 +3,16 @@ package com.reservationSys.reservationSys.Controllers;
 import com.reservationSys.reservationSys.DTOs.PortDTOs.PortAddRequestDTO;
 import com.reservationSys.reservationSys.DTOs.PortDTOs.PortResponseDTO;
 import com.reservationSys.reservationSys.DTOs.PortDTOs.PortUpdateRequestDTO;
+import com.reservationSys.reservationSys.DTOs.PortDTOs.TimeSlotsDTO;
+import com.reservationSys.reservationSys.Domain.reservation.Duration;
 import com.reservationSys.reservationSys.Repositories.PortRepo;
 import com.reservationSys.reservationSys.Services.Port.PortService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import org.apache.http.client.protocol.ResponseProcessCookies;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -52,6 +55,14 @@ public class PortController {
     @SecurityRequirement(name="Bearer Authentication")
     public ResponseEntity<PortResponseDTO> deletePort(@RequestBody PortUpdateRequestDTO request, @PathVariable UUID stationId,@PathVariable UUID portId){
         return ResponseEntity.ok(portService.deletePort(request,stationId,portId));
+    }
+
+    //user specific endpoints
+
+    @GetMapping("/stations/{stationId}/ports/{portId}/slots/{date}/duration/{duration}")
+    @SecurityRequirement(name="Bearer Authentication")
+    public ResponseEntity<List<TimeSlotsDTO>> getAvailablePortsForUser(@PathVariable UUID stationId, @PathVariable UUID portId, @PathVariable LocalDate date, @PathVariable Duration duration){
+        return ResponseEntity.ok(portService.getAvailableTimeSlots(stationId,portId,date,duration));
     }
 
 }

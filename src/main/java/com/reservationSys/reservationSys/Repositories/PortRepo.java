@@ -26,7 +26,7 @@ where p.status='AVAILABLE' AND p.station_id = :stationId AND NOT EXISTS(
     SELECT 1 FROM reservation r
     WHERE r.port_id = p.id
     AND r.start_time< :endTime
-    AND  r.end_time < :startTime
+    AND  r.end_time > :startTime
 )
 """,nativeQuery = true)
     List<Port> findAllByStation_StationIdAndIsAvailableTrue(
