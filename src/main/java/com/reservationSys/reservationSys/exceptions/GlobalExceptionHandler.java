@@ -2,10 +2,14 @@ package com.reservationSys.reservationSys.exceptions;
 
 
 
+import com.reservationSys.reservationSys.exceptions.AuthExceptions.*;
 import com.reservationSys.reservationSys.exceptions.CarExceptions.BlockedCarException;
 import com.reservationSys.reservationSys.exceptions.CarExceptions.CarAlreadyVerifiedException;
 import com.reservationSys.reservationSys.exceptions.CarExceptions.DuplicateChassisNumberException;
 import com.reservationSys.reservationSys.exceptions.CarExceptions.DuplicatePlateNumberException;
+import com.reservationSys.reservationSys.exceptions.GeneralExceptions.RessourceNotFound;
+import com.reservationSys.reservationSys.exceptions.GeneralExceptions.TooManyRequestsException;
+import com.reservationSys.reservationSys.exceptions.PortExceptions.PortCantBeDeletedException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +19,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -237,4 +240,17 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(PortCantBeDeletedException.class)
+    public ResponseEntity<ApiError> handlePortCantBeDeletedException(PortCantBeDeletedException ex){
+        return ResponseEntity.status(HttpStatus.IM_USED.value()).body(
+                new ApiError(
+                        Instant.now(),
+                        HttpStatus.IM_USED.value(),
+                        HttpStatus.IM_USED.name(),
+                        ex.getMessage(),
+                        request.getRequestURI(),
+                        null
+                )
+        );
+    }
 }

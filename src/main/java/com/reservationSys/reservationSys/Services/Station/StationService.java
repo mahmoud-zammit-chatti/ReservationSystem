@@ -8,7 +8,7 @@ import com.reservationSys.reservationSys.Domain.station.Station;
 import com.reservationSys.reservationSys.Repositories.PortRepo;
 import com.reservationSys.reservationSys.Repositories.StationRepo;
 import com.reservationSys.reservationSys.Repositories.StationWithDistanceProjection;
-import com.reservationSys.reservationSys.exceptions.RessourceNotFound;
+import com.reservationSys.reservationSys.exceptions.GeneralExceptions.RessourceNotFound;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

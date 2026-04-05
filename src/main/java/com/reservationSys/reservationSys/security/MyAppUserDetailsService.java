@@ -2,11 +2,9 @@ package com.reservationSys.reservationSys.security;
 
 import com.reservationSys.reservationSys.Domain.user.AppUser;
 import com.reservationSys.reservationSys.Repositories.AppUserRepo;
-import com.reservationSys.reservationSys.exceptions.RessourceNotFound;
+import com.reservationSys.reservationSys.exceptions.GeneralExceptions.RessourceNotFound;
 import org.jspecify.annotations.NonNull;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service

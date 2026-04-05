@@ -13,14 +13,12 @@ import com.reservationSys.reservationSys.Repositories.CarRepo;
 import com.reservationSys.reservationSys.exceptions.CarExceptions.CarAlreadyVerifiedException;
 import com.reservationSys.reservationSys.exceptions.CarExceptions.DuplicateChassisNumberException;
 import com.reservationSys.reservationSys.exceptions.CarExceptions.DuplicatePlateNumberException;
-import com.reservationSys.reservationSys.exceptions.RessourceNotFound;
+import com.reservationSys.reservationSys.exceptions.GeneralExceptions.RessourceNotFound;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;

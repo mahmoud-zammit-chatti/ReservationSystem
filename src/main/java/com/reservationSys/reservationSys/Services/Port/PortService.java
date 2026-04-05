@@ -3,27 +3,43 @@ package com.reservationSys.reservationSys.Services.Port;
 
 import com.reservationSys.reservationSys.DTOs.PortDTOs.PortAddRequestDTO;
 import com.reservationSys.reservationSys.DTOs.PortDTOs.PortResponseDTO;
+import com.reservationSys.reservationSys.DTOs.PortDTOs.PortUpdateRequestDTO;
 import com.reservationSys.reservationSys.Domain.port.Port;
 import com.reservationSys.reservationSys.Domain.port.PortStatus;
+import com.reservationSys.reservationSys.Domain.reservation.Reservation;
+import com.reservationSys.reservationSys.Domain.reservation.ReservationStatus;
 import com.reservationSys.reservationSys.Domain.station.Station;
 import com.reservationSys.reservationSys.Repositories.PortRepo;
+import com.reservationSys.reservationSys.Repositories.ReservationRepo;
 import com.reservationSys.reservationSys.Repositories.StationRepo;
-import com.reservationSys.reservationSys.exceptions.RessourceNotFound;
+import com.reservationSys.reservationSys.exceptions.GeneralExceptions.RessourceNotFound;
+import com.reservationSys.reservationSys.exceptions.PortExceptions.PortCantBeDeletedException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+import static org.testng.Reporter.log;
+
+@Slf4j
 @Service
 public class PortService {
 
     private final StationRepo stationRepo;
     private final PortRepo portRepo;
+    private final ReservationRepo reservationRepo;
+    private final PortStatusUpdateService portStatusUpdateService;
 
-    public PortService(StationRepo stationRepo, PortRepo portRepo) {
+    public PortService(StationRepo stationRepo, PortRepo portRepo, ReservationRepo reservationRepo, PortStatusUpdateService portStatusUpdateService) {
         this.stationRepo = stationRepo;
         this.portRepo = portRepo;
+        this.reservationRepo = reservationRepo;
+        this.portStatusUpdateService = portStatusUpdateService;
     }
 
     @Transactional
@@ -48,6 +64,84 @@ public class PortService {
                 .build();
 
 
+
+    }
+
+    @Transactional
+    public List<PortResponseDTO> getPort(UUID stationId) {
+
+        List<Port> ports = portRepo.findAllByStation_StationId(stationId);
+
+        List<PortResponseDTO> portsDTO = new ArrayList<>();
+        for(Port p : ports){
+            portsDTO.add(
+                    PortResponseDTO.builder()
+                            .portName(p.getName())
+                            .portId(p.getId())
+                            .stationId(p.getStation().getStationId())
+                            .portStatus(p.getStatus())
+                            .accessIdentifier(p.getAccessIdentifier())
+                            .build()
+            );
+        }
+        return portsDTO;
+    }
+
+    @Transactional
+    public PortResponseDTO updatePort(PortUpdateRequestDTO request, UUID stationId, UUID portId){
+        Port port = portRepo.findByIdAndStation_StationId(portId,stationId).orElseThrow(()-> new RessourceNotFound("can't find the requested port"));
+
+        port.setName(request.getNewName());
+        portRepo.save(port);
+        return PortResponseDTO.builder()
+                .portName(port.getName())
+                .portStatus(port.getStatus())
+                .portId(portId)
+                .stationId(stationId)
+                .accessIdentifier(port.getAccessIdentifier())
+                .build();
+    }
+
+
+    @Transactional
+    public PortResponseDTO deletePort(PortUpdateRequestDTO request, UUID stationId, UUID portId) {
+
+        //first check if there are any reservations fot this port
+        // if yes it can't be deleted but its status will be updated to expiring_soon and then it can't accept any
+        // new reservations and set a scheduled job to delete the port when its reservations passed
+
+        List<ReservationStatus> status = List.of(ReservationStatus.CONFIRMED,ReservationStatus.CHECKED_IN,ReservationStatus.PENDING_OTP);
+        List<Reservation> reservationList = reservationRepo.findAllByPortIdAndReservationStatusIn(portId,status);
+        if(!reservationList.isEmpty()){
+
+        portStatusUpdateService.updatePortStatus(portId,stationId);
+
+            throw new PortCantBeDeletedException("this port have one or more active reservation, it has been marked to be deleted as soon as no reservation is active on it and it can't accept any more reservation");
+        }else {
+
+            Port port = portRepo.deleteByIdAndStation_StationId(portId, stationId).orElseThrow(() -> new RessourceNotFound("can't find the requested port"));
+
+        return PortResponseDTO.builder()
+                .portName(port.getName())
+                .portStatus(port.getStatus())
+                .portId(portId)
+                .stationId(stationId)
+                .accessIdentifier(port.getAccessIdentifier())
+                .build();
+        }
+
+    }
+
+    @Transactional
+    @Scheduled(fixedDelayString = "${port_deletion_scheduler_interval}")
+    public void deletePortsOnSchedule(){
+        List<Port> portList = portRepo.PortsToBeDeleted();
+
+        portRepo.deleteAll(portList);
+
+        if(!portList.isEmpty()){
+            log("Some ports were deleted by a scheduled service !");
+        }
 
     }
 }

@@ -28,6 +28,7 @@ public class Reservation {
 
     private Instant startTime;
 
+    @Enumerated
     private Duration duration;
 
     private Instant endTime;

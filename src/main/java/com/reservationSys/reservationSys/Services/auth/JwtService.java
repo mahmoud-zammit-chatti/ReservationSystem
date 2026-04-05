@@ -1,7 +1,7 @@
 package com.reservationSys.reservationSys.Services.auth;
 
 
-import com.reservationSys.reservationSys.exceptions.AuthenticationError;
+import com.reservationSys.reservationSys.exceptions.AuthExceptions.AuthenticationError;
 import com.reservationSys.reservationSys.security.MyAppUserDetails;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
