@@ -15,19 +15,21 @@ public interface CarRepo extends JpaRepository<Car, UUID> {
     Optional<Car> findById(UUID id);
     Optional<Car> findByIdAndUserId(UUID carId, UUID userId);
 
-    Optional<Car> findByPlateNumberAndChassisNumber(String licensePlate, String chassisNumber);
     Optional<Car> findByPlateNumber(String plateNumber);
     Optional<Car> findByChassisNumber(String chassisNumber);
 
-    Optional<Car> deleteByIdAndUserId(UUID carId, UUID id);
+
     @Query(
             " SELECT c FROM Car c WHERE c.blockedAt < :threshold AND c.status = :status"
     )
     List<Car> findAllByStatusAndBlockedAtBefore(CarStatus status, Instant threshold);
 
 
-    List<Car> deleteAllByUserId(UUID userId);
+
 
     List<Car> findAllByUserId(UUID userId);
 
+    Optional<Car> findByIdAndUserIdAndDeletedAtIsNull(UUID carId, UUID id);
+
+    List<Car> findAllByUserIdAndDeletedAtIsNull(UUID id);
 }

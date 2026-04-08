@@ -83,7 +83,7 @@ public class ReservationController {
     @SecurityRequirement(name = "Bearer Authentication")
     public ResponseEntity<String> deleteReservation(@AuthenticationPrincipal MyAppUserDetails userDetails,@PathVariable UUID reservationId,@PathVariable CancellationReason reason){
         AppUser appUser = userDetails.getAppUser();
-        reservationService.cancelReservation(reservationId,appUser,reason);
+        reservationService.cancelReservation(reservationId,appUser.getId(),reason);
         return ResponseEntity.ok("reservation cancelled, check cancellation fee and penalty ");
     }
 

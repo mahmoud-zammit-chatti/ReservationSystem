@@ -282,9 +282,9 @@ public class ReservationService {
 
     }
 
-    public void cancelReservation(UUID reservationId, AppUser appUser,CancellationReason reason) {
+    public void cancelReservation(UUID reservationId, UUID userId,CancellationReason reason) {
 
-        Reservation reservation = reservationRepo.findByIdAndUserId(reservationId,appUser.getId()).orElseThrow(() -> new RessourceNotFound("Reservation not found"));
+        Reservation reservation = reservationRepo.findByIdAndUserId(reservationId,userId).orElseThrow(() -> new RessourceNotFound("Reservation not found"));
 
         if(reservation.getReservationStatus()==ReservationStatus.CANCELLED){
             throw new ReservationCancellationException("This reservation is already cancelled :(");

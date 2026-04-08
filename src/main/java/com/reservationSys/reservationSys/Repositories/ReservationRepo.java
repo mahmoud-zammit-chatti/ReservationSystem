@@ -54,4 +54,5 @@ AND r.end_time>:startTime
 
     Optional<Reservation> findByIdAndUserId(UUID reservationId, UUID id);
 
+    List<Reservation> findAllByCarId(UUID id);
 }

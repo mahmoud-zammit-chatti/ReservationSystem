@@ -118,11 +118,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(EmailNotVerifiedException.class)
     public ResponseEntity<ApiError> handleEmailNotVerifiedException(EmailNotVerifiedException ex) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED.value()).body(
+        return ResponseEntity.status(HttpStatus.FORBIDDEN.value()).body(
                 new ApiError(
                         Instant.now(),
-                        HttpStatus.UNAUTHORIZED.value(),
-                        HttpStatus.UNAUTHORIZED.name(),
+                        HttpStatus.FORBIDDEN.value(),
+                        HttpStatus.FORBIDDEN.name(),
                         ex.getMessage(),
                         request.getRequestURI(),
                         null
@@ -160,11 +160,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(EmailAleadyVerifed.class)
     public ResponseEntity<ApiError> handleBadRequestException(EmailAleadyVerifed ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(
+        return ResponseEntity.status(HttpStatus.CONFLICT.value()).body(
                 new ApiError(
                         Instant.now(),
-                        HttpStatus.BAD_REQUEST.value(),
-                        HttpStatus.BAD_REQUEST.name(),
+                        HttpStatus.CONFLICT.value(),
+                        HttpStatus.CONFLICT.name(),
                         ex.getMessage(),
                         request.getRequestURI(),
                         null
@@ -246,11 +246,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(PortCantBeDeletedException.class)
     public ResponseEntity<ApiError> handlePortCantBeDeletedException(PortCantBeDeletedException ex) {
-        return ResponseEntity.status(HttpStatus.IM_USED.value()).body(
+        return ResponseEntity.status(HttpStatus.CONFLICT.value()).body(
                 new ApiError(
                         Instant.now(),
-                        HttpStatus.IM_USED.value(),
-                        HttpStatus.IM_USED.name(),
+                        HttpStatus.CONFLICT.value(),
+                        HttpStatus.CONFLICT.name(),
                         ex.getMessage(),
                         request.getRequestURI(),
                         null
@@ -260,11 +260,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CarNotVerifiedException.class)
     public ResponseEntity<ApiError> handleCarNotVerifiedException(CarNotVerifiedException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE.value()).body(
+        return ResponseEntity.status(HttpStatus.FORBIDDEN.value()).body(
                 new ApiError(
                         Instant.now(),
-                        HttpStatus.NOT_ACCEPTABLE.value(),
-                        HttpStatus.NOT_ACCEPTABLE.name(),
+                        HttpStatus.FORBIDDEN.value(),
+                        HttpStatus.FORBIDDEN.name(),
                         ex.getMessage(),
                         request.getRequestURI(),
                         null
@@ -274,11 +274,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(PortNotAvailableException.class)
     public ResponseEntity<ApiError> handlePortNotAvailableException(PortNotAvailableException ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value()).body(
+        return ResponseEntity.status(HttpStatus.CONFLICT.value()).body(
                 new ApiError(
                         Instant.now(),
-                        HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                        HttpStatus.INTERNAL_SERVER_ERROR.name(),
+                        HttpStatus.CONFLICT.value(),
+                        HttpStatus.CONFLICT.name(),
                         ex.getMessage(),
                         request.getRequestURI(),
                         null
@@ -302,11 +302,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ReservationConfirmationException.class)
     public ResponseEntity<ApiError> handleReservationConfirmationException(ReservationConfirmationException ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value()).body(
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY.value()).body(
                 new ApiError(
                         Instant.now(),
-                        HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                        HttpStatus.INTERNAL_SERVER_ERROR.name(),
+                        HttpStatus.UNPROCESSABLE_ENTITY.value(),
+                        HttpStatus.UNPROCESSABLE_ENTITY.name(),
                         ex.getMessage(),
                         request.getRequestURI(),
                         null
@@ -316,11 +316,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ReservationCancellationException.class)
     public ResponseEntity<ApiError> handleReservationCancellationException(ReservationCancellationException ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value()).body(
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY.value()).body(
                 new ApiError(
                         Instant.now(),
-                        HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                        HttpStatus.INTERNAL_SERVER_ERROR.name(),
+                        HttpStatus.UNPROCESSABLE_ENTITY.value(),
+                        HttpStatus.UNPROCESSABLE_ENTITY.name(),
                         ex.getMessage(),
                         request.getRequestURI(),
                         null

@@ -38,4 +38,6 @@ public class Car {
     private Instant registeredAt;
 
     private Instant verifiedAt;
+
+    private Instant deletedAt;
 }
