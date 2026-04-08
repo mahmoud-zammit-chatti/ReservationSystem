@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static org.testng.Reporter.log;
 
 @Slf4j
 @Service
@@ -155,9 +154,7 @@ public class PortService {
 
         portRepo.deleteAll(portList);
 
-        if (!portList.isEmpty()) {
-            log("Some ports were deleted by a scheduled service !");
-        }
+
 
     }
 
