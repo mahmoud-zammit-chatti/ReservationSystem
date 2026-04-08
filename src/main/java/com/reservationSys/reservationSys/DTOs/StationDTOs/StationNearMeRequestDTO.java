@@ -1,6 +1,6 @@
 package com.reservationSys.reservationSys.DTOs.StationDTOs;
 
-import com.reservationSys.reservationSys.Domain.reservation.Duration;
+import com.reservationSys.reservationSys.Models.reservation.Duration;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;

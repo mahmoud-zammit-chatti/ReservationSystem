@@ -3,12 +3,12 @@ package com.reservationSys.reservationSys.Services.Station;
 
 import com.reservationSys.reservationSys.DTOs.PortDTOs.PortResponseDTO;
 import com.reservationSys.reservationSys.DTOs.StationDTOs.*;
-import com.reservationSys.reservationSys.Domain.port.Port;
-import com.reservationSys.reservationSys.Domain.station.Station;
+import com.reservationSys.reservationSys.Models.port.Port;
+import com.reservationSys.reservationSys.Models.station.Station;
 import com.reservationSys.reservationSys.Repositories.PortRepo;
 import com.reservationSys.reservationSys.Repositories.StationRepo;
 import com.reservationSys.reservationSys.Repositories.StationWithDistanceProjection;
-import com.reservationSys.reservationSys.exceptions.GeneralExceptions.RessourceNotFound;
+import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.RessourceNotFound;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -1,12 +1,11 @@
 package com.reservationSys.reservationSys.DTOs.ReservationDTOs;
 
 
-import com.reservationSys.reservationSys.Domain.reservation.Duration;
-import com.reservationSys.reservationSys.Domain.reservation.ReservationStatus;
+import com.reservationSys.reservationSys.Models.reservation.Duration;
+import com.reservationSys.reservationSys.Models.reservation.ReservationStatus;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
 

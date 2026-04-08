@@ -1,7 +1,7 @@
 package com.reservationSys.reservationSys.security;
 
-import com.reservationSys.reservationSys.Domain.user.AppUser;
-import com.reservationSys.reservationSys.Domain.user.UserStatus;
+import com.reservationSys.reservationSys.Models.user.AppUser;
+import com.reservationSys.reservationSys.Models.user.UserStatus;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

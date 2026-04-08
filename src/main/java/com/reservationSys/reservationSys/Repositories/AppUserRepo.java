@@ -1,6 +1,6 @@
 package com.reservationSys.reservationSys.Repositories;
 
-import com.reservationSys.reservationSys.Domain.user.AppUser;
+import com.reservationSys.reservationSys.Models.user.AppUser;
 import org.jspecify.annotations.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

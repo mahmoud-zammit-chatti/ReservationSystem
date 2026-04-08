@@ -1,11 +1,8 @@
 package com.reservationSys.reservationSys.Repositories;
 
-import com.reservationSys.reservationSys.Domain.port.Port;
-import com.reservationSys.reservationSys.Domain.port.PortStatus;
-import com.reservationSys.reservationSys.Domain.reservation.Duration;
+import com.reservationSys.reservationSys.Models.port.Port;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.ListCrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 

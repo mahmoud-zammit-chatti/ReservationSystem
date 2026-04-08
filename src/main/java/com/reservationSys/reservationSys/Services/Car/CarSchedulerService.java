@@ -1,8 +1,8 @@
 package com.reservationSys.reservationSys.Services.Car;
 
 
-import com.reservationSys.reservationSys.Domain.car.Car;
-import com.reservationSys.reservationSys.Domain.car.CarStatus;
+import com.reservationSys.reservationSys.Models.car.Car;
+import com.reservationSys.reservationSys.Models.car.CarStatus;
 import com.reservationSys.reservationSys.Repositories.CarRepo;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;

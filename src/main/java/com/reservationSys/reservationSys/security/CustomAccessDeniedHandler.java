@@ -1,7 +1,7 @@
 package com.reservationSys.reservationSys.security;
 
 
-import com.reservationSys.reservationSys.exceptions.ApiError;
+import com.reservationSys.reservationSys.Exceptions.ApiError;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

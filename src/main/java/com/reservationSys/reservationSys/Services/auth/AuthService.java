@@ -2,20 +2,20 @@ package com.reservationSys.reservationSys.Services.auth;
 
 
 import com.reservationSys.reservationSys.DTOs.AuthDTOs.*;
-import com.reservationSys.reservationSys.Domain.otp.OTP;
-import com.reservationSys.reservationSys.Domain.otp.OtpPurpose;
-import com.reservationSys.reservationSys.Domain.user.AppUser;
-import com.reservationSys.reservationSys.Domain.user.RefreshToken;
-import com.reservationSys.reservationSys.Domain.user.UserRole;
-import com.reservationSys.reservationSys.Domain.user.UserStatus;
+import com.reservationSys.reservationSys.Models.otp.OTP;
+import com.reservationSys.reservationSys.Models.otp.OtpPurpose;
+import com.reservationSys.reservationSys.Models.user.AppUser;
+import com.reservationSys.reservationSys.Models.user.RefreshToken;
+import com.reservationSys.reservationSys.Models.user.UserRole;
+import com.reservationSys.reservationSys.Models.user.UserStatus;
 import com.reservationSys.reservationSys.Repositories.AppUserRepo;
 import com.reservationSys.reservationSys.Repositories.OtpRepo;
 import com.reservationSys.reservationSys.Repositories.RefreshTokenRepo;
 import com.reservationSys.reservationSys.Services.OTP.OtpService;
 import com.reservationSys.reservationSys.Services.OTP.TwilioService;
-import com.reservationSys.reservationSys.exceptions.AuthExceptions.*;
-import com.reservationSys.reservationSys.exceptions.GeneralExceptions.RessourceNotFound;
-import com.reservationSys.reservationSys.exceptions.GeneralExceptions.TooManyRequestsException;
+import com.reservationSys.reservationSys.Exceptions.AuthExceptions.*;
+import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.RessourceNotFound;
+import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.TooManyRequestsException;
 import com.twilio.exception.ApiException;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -28,8 +28,8 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.reservationSys.reservationSys.Domain.otp.OtpPurpose.ACCOUNT_PHONE_VERIFICATION;
-import static com.reservationSys.reservationSys.Domain.otp.OtpPurpose.EMAIL_VERIFICATION;
+import static com.reservationSys.reservationSys.Models.otp.OtpPurpose.ACCOUNT_PHONE_VERIFICATION;
+import static com.reservationSys.reservationSys.Models.otp.OtpPurpose.EMAIL_VERIFICATION;
 
 @Slf4j
 @Service

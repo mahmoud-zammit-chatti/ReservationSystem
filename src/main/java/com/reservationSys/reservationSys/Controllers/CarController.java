@@ -1,11 +1,8 @@
 package com.reservationSys.reservationSys.Controllers;
 
 import com.reservationSys.reservationSys.DTOs.CarDTOs.*;
-import com.reservationSys.reservationSys.Domain.car.Car;
-import com.reservationSys.reservationSys.Domain.user.AppUser;
+import com.reservationSys.reservationSys.Models.user.AppUser;
 import com.reservationSys.reservationSys.Services.Car.CarService;
-import com.reservationSys.reservationSys.Services.Car.CarUpdateService;
-import com.reservationSys.reservationSys.Services.Car.CarVerificationService;
 import com.reservationSys.reservationSys.security.MyAppUserDetails;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;

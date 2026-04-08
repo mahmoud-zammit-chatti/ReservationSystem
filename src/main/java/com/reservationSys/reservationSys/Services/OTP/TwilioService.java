@@ -1,13 +1,13 @@
 package com.reservationSys.reservationSys.Services.OTP;
 
 
-import com.reservationSys.reservationSys.Domain.otp.OTP;
-import com.reservationSys.reservationSys.Domain.otp.OtpPurpose;
-import com.reservationSys.reservationSys.Domain.otp.OtpStatus;
-import com.reservationSys.reservationSys.Domain.user.AppUser;
+import com.reservationSys.reservationSys.Models.otp.OTP;
+import com.reservationSys.reservationSys.Models.otp.OtpPurpose;
+import com.reservationSys.reservationSys.Models.otp.OtpStatus;
+import com.reservationSys.reservationSys.Models.user.AppUser;
 import com.reservationSys.reservationSys.Repositories.AppUserRepo;
 import com.reservationSys.reservationSys.Repositories.OtpRepo;
-import com.reservationSys.reservationSys.exceptions.GeneralExceptions.RessourceNotFound;
+import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.RessourceNotFound;
 import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;

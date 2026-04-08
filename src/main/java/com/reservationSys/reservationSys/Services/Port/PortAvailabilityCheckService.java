@@ -1,7 +1,7 @@
 package com.reservationSys.reservationSys.Services.Port;
 
 
-import com.reservationSys.reservationSys.Domain.reservation.Reservation;
+import com.reservationSys.reservationSys.Models.reservation.Reservation;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

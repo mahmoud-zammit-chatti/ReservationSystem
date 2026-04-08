@@ -1,6 +1,6 @@
 package com.reservationSys.reservationSys.DTOs.PortDTOs;
 
-import com.reservationSys.reservationSys.Domain.port.PortStatus;
+import com.reservationSys.reservationSys.Models.port.PortStatus;
 import lombok.Builder;
 import lombok.Data;
 

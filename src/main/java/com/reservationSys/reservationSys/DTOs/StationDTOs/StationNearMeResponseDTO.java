@@ -1,8 +1,6 @@
 package com.reservationSys.reservationSys.DTOs.StationDTOs;
 
-import com.reservationSys.reservationSys.DTOs.PortDTOs.PortAddRequestDTO;
 import com.reservationSys.reservationSys.DTOs.PortDTOs.PortResponseDTO;
-import com.reservationSys.reservationSys.Domain.port.Port;
 import lombok.Builder;
 import lombok.Data;
 

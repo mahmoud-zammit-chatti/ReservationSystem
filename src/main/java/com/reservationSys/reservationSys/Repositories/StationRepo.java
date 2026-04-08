@@ -1,6 +1,6 @@
 package com.reservationSys.reservationSys.Repositories;
 
-import com.reservationSys.reservationSys.Domain.station.Station;
+import com.reservationSys.reservationSys.Models.station.Station;
 import org.jspecify.annotations.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

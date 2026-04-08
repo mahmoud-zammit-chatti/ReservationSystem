@@ -1,7 +1,7 @@
 package com.reservationSys.reservationSys.Repositories;
 
-import com.reservationSys.reservationSys.Domain.car.Car;
-import com.reservationSys.reservationSys.Domain.car.CarStatus;
+import com.reservationSys.reservationSys.Models.car.Car;
+import com.reservationSys.reservationSys.Models.car.CarStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

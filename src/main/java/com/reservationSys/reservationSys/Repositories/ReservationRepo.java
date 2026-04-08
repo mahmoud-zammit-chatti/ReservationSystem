@@ -1,7 +1,7 @@
 package com.reservationSys.reservationSys.Repositories;
 
-import com.reservationSys.reservationSys.Domain.reservation.Reservation;
-import com.reservationSys.reservationSys.Domain.reservation.ReservationStatus;
+import com.reservationSys.reservationSys.Models.reservation.Reservation;
+import com.reservationSys.reservationSys.Models.reservation.ReservationStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

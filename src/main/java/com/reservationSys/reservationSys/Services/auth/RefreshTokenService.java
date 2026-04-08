@@ -1,11 +1,11 @@
 package com.reservationSys.reservationSys.Services.auth;
 
 
-import com.reservationSys.reservationSys.Domain.user.AppUser;
-import com.reservationSys.reservationSys.Domain.user.RefreshToken;
+import com.reservationSys.reservationSys.Models.user.AppUser;
+import com.reservationSys.reservationSys.Models.user.RefreshToken;
 import com.reservationSys.reservationSys.Repositories.RefreshTokenRepo;
-import com.reservationSys.reservationSys.exceptions.AuthExceptions.AuthenticationError;
-import com.reservationSys.reservationSys.exceptions.GeneralExceptions.RessourceNotFound;
+import com.reservationSys.reservationSys.Exceptions.AuthExceptions.AuthenticationError;
+import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.RessourceNotFound;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -4,8 +4,7 @@ import com.reservationSys.reservationSys.DTOs.PortDTOs.PortAddRequestDTO;
 import com.reservationSys.reservationSys.DTOs.PortDTOs.PortResponseDTO;
 import com.reservationSys.reservationSys.DTOs.PortDTOs.PortUpdateRequestDTO;
 import com.reservationSys.reservationSys.DTOs.PortDTOs.TimeSlotsDTO;
-import com.reservationSys.reservationSys.Domain.reservation.Duration;
-import com.reservationSys.reservationSys.Repositories.PortRepo;
+import com.reservationSys.reservationSys.Models.reservation.Duration;
 import com.reservationSys.reservationSys.Services.Port.PortService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
@@ -13,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 

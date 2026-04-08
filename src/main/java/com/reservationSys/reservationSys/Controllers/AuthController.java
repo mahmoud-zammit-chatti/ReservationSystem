@@ -2,7 +2,7 @@ package com.reservationSys.reservationSys.Controllers;
 
 
 import com.reservationSys.reservationSys.DTOs.AuthDTOs.*;
-import com.reservationSys.reservationSys.Domain.user.AppUser;
+import com.reservationSys.reservationSys.Models.user.AppUser;
 import com.reservationSys.reservationSys.Services.auth.AuthService;
 import com.reservationSys.reservationSys.security.MyAppUserDetails;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

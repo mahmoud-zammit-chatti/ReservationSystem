@@ -2,9 +2,9 @@ package com.reservationSys.reservationSys.Services.Car;
 
 import com.azure.ai.documentintelligence.models.AnalyzeResult;
 import com.reservationSys.reservationSys.Cloud.AzureOcrService;
-import com.reservationSys.reservationSys.Domain.car.Car;
+import com.reservationSys.reservationSys.Models.car.Car;
 import com.reservationSys.reservationSys.Repositories.CarRepo;
-import com.reservationSys.reservationSys.exceptions.GeneralExceptions.RessourceNotFound;
+import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.RessourceNotFound;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;

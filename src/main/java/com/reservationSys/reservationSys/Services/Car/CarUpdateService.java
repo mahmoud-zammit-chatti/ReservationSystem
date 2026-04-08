@@ -1,10 +1,10 @@
 package com.reservationSys.reservationSys.Services.Car;
 
-import com.reservationSys.reservationSys.Domain.car.Car;
-import com.reservationSys.reservationSys.Domain.car.CarStatus;
+import com.reservationSys.reservationSys.Models.car.Car;
+import com.reservationSys.reservationSys.Models.car.CarStatus;
 import com.reservationSys.reservationSys.Repositories.CarRepo;
-import com.reservationSys.reservationSys.exceptions.CarExceptions.BlockedCarException;
-import com.reservationSys.reservationSys.exceptions.GeneralExceptions.RessourceNotFound;
+import com.reservationSys.reservationSys.Exceptions.CarExceptions.BlockedCarException;
+import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.RessourceNotFound;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

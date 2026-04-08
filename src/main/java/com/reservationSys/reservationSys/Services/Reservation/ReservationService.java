@@ -4,27 +4,27 @@ package com.reservationSys.reservationSys.Services.Reservation;
 import com.reservationSys.reservationSys.DTOs.ReservationDTOs.ReservationAddRequestDTO;
 import com.reservationSys.reservationSys.DTOs.ReservationDTOs.ReservationConfirmationDTO;
 import com.reservationSys.reservationSys.DTOs.ReservationDTOs.ReservationResponseDTO;
-import com.reservationSys.reservationSys.Domain.car.Car;
-import com.reservationSys.reservationSys.Domain.car.CarStatus;
-import com.reservationSys.reservationSys.Domain.otp.OtpPurpose;
-import com.reservationSys.reservationSys.Domain.port.Port;
-import com.reservationSys.reservationSys.Domain.port.PortStatus;
-import com.reservationSys.reservationSys.Domain.reservation.CancellationReason;
-import com.reservationSys.reservationSys.Domain.reservation.Reservation;
-import com.reservationSys.reservationSys.Domain.reservation.ReservationStatus;
-import com.reservationSys.reservationSys.Domain.user.AppUser;
+import com.reservationSys.reservationSys.Models.car.Car;
+import com.reservationSys.reservationSys.Models.car.CarStatus;
+import com.reservationSys.reservationSys.Models.otp.OtpPurpose;
+import com.reservationSys.reservationSys.Models.port.Port;
+import com.reservationSys.reservationSys.Models.port.PortStatus;
+import com.reservationSys.reservationSys.Models.reservation.CancellationReason;
+import com.reservationSys.reservationSys.Models.reservation.Reservation;
+import com.reservationSys.reservationSys.Models.reservation.ReservationStatus;
+import com.reservationSys.reservationSys.Models.user.AppUser;
 import com.reservationSys.reservationSys.Repositories.CarRepo;
 import com.reservationSys.reservationSys.Repositories.PortRepo;
 import com.reservationSys.reservationSys.Repositories.ReservationRepo;
 import com.reservationSys.reservationSys.Services.OTP.OtpService;
 import com.reservationSys.reservationSys.Services.OTP.TwilioService;
 import com.reservationSys.reservationSys.Services.auth.EmailService;
-import com.reservationSys.reservationSys.exceptions.CarExceptions.CarNotVerifiedException;
-import com.reservationSys.reservationSys.exceptions.GeneralExceptions.NotAuthorizedException;
-import com.reservationSys.reservationSys.exceptions.GeneralExceptions.RessourceNotFound;
-import com.reservationSys.reservationSys.exceptions.PortExceptions.PortNotAvailableException;
-import com.reservationSys.reservationSys.exceptions.ReservationExceptions.ReservationCancellationException;
-import com.reservationSys.reservationSys.exceptions.ReservationExceptions.ReservationConfirmationException;
+import com.reservationSys.reservationSys.Exceptions.CarExceptions.CarNotVerifiedException;
+import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.NotAuthorizedException;
+import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.RessourceNotFound;
+import com.reservationSys.reservationSys.Exceptions.PortExceptions.PortNotAvailableException;
+import com.reservationSys.reservationSys.Exceptions.ReservationExceptions.ReservationCancellationException;
+import com.reservationSys.reservationSys.Exceptions.ReservationExceptions.ReservationConfirmationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,9 +36,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static com.reservationSys.reservationSys.Domain.reservation.CancellationReason.USER_CANCELLED;
-import static com.reservationSys.reservationSys.Domain.reservation.PenaltyType.LATE_CANCEL_PENALTY;
-import static com.reservationSys.reservationSys.Domain.reservation.PenaltyType.NO_PENALTY;
+import static com.reservationSys.reservationSys.Models.reservation.PenaltyType.LATE_CANCEL_PENALTY;
+import static com.reservationSys.reservationSys.Models.reservation.PenaltyType.NO_PENALTY;
 
 @Service
 public class ReservationService {

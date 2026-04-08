@@ -2,7 +2,7 @@ package com.reservationSys.reservationSys.security;
 
 
 
-import com.reservationSys.reservationSys.Domain.user.UserStatus;
+import com.reservationSys.reservationSys.Models.user.UserStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 

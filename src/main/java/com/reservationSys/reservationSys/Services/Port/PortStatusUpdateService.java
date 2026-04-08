@@ -1,10 +1,10 @@
 package com.reservationSys.reservationSys.Services.Port;
 
 
-import com.reservationSys.reservationSys.Domain.port.Port;
-import com.reservationSys.reservationSys.Domain.port.PortStatus;
+import com.reservationSys.reservationSys.Models.port.Port;
+import com.reservationSys.reservationSys.Models.port.PortStatus;
 import com.reservationSys.reservationSys.Repositories.PortRepo;
-import com.reservationSys.reservationSys.exceptions.GeneralExceptions.RessourceNotFound;
+import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.RessourceNotFound;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;

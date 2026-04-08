@@ -1,9 +1,9 @@
 package com.reservationSys.reservationSys.Services.OTP;
 
 
-import com.reservationSys.reservationSys.Domain.otp.OTP;
-import com.reservationSys.reservationSys.Domain.otp.OtpPurpose;
-import com.reservationSys.reservationSys.Domain.otp.OtpStatus;
+import com.reservationSys.reservationSys.Models.otp.OTP;
+import com.reservationSys.reservationSys.Models.otp.OtpPurpose;
+import com.reservationSys.reservationSys.Models.otp.OtpStatus;
 import com.reservationSys.reservationSys.Repositories.OtpRepo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
