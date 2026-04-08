@@ -1,5 +1,6 @@
 package com.reservationSys.reservationSys.DTOs.AuthDTOs;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
@@ -7,7 +8,8 @@ import lombok.Data;
 public class PhoneVerificationRequestDTO {
 
 
-        @Pattern(regexp = "^[0-9]{8}", message = "The phone number must be exactly 8 digits")
+        @Pattern(regexp = "^[0-9]{8}$", message = "The phone number must be exactly 8 digits")
+        @NotBlank
         String phoneNumber;
 
 }

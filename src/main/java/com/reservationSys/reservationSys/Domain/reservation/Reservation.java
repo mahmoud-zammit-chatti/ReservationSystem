@@ -49,4 +49,6 @@ public class Reservation {
     private Instant createdAt;
 
     private Instant checkedInAt;
+
+    private Instant cancelledAt;
 }

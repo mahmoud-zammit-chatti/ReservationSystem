@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -35,5 +36,22 @@ public interface ReservationRepo extends JpaRepository<Reservation, UUID> {
     );
 
 
+    @Query(value = """
+SELECT r.*
+FROM reservation r
+WHERE r.port_id = :portId
+AND r.reservation_status IN (:activeStatus)
+AND r.start_time<:endTime
+AND r.end_time>:startTime
+""",nativeQuery = true)
+    List<Reservation> findConflictedReservations(@Param("portId") UUID id, @Param("startTime") Instant candidateStartTime,@Param("endTime") Instant candidateEndTime,@Param("activeStatus") List<String> activestatus);
+
+    List<Reservation> findAllByUserId(UUID id);
+
+    List<Reservation> findAllByUserIdAndReservationStatusEquals(UUID id, ReservationStatus status);
+
+    List<Reservation> findAllByUserIdAndCarId(UUID id, UUID carId);
+
+    Optional<Reservation> findByIdAndUserId(UUID reservationId, UUID id);
 
 }

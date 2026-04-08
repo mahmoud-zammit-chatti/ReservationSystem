@@ -105,7 +105,7 @@ public class AuthService {
 
         //email part
         try {
-            emailService.sendVerificationEmail(user.getEmail(), codeEmail);
+            emailService.sendVerificationEmail(user.getEmail(), codeEmail,"Email verification for E-Car reservation system");
             responseDTO.setEmailMsg("Email was sent with success");
             responseDTO.setEmailSent(true);
         } catch (MailException e) {
@@ -188,7 +188,7 @@ public class AuthService {
         if (user.getPhoneNumberVerifiedAt() != null) {
             throw new IncorrectCredentials("Phone number already verified ");
         }
-        if (otpService.verifyOtpForUser(user.getId(), code, ACCOUNT_PHONE_VERIFICATION)) {
+        if (otpService.verifyOtp(user.getId(), code, ACCOUNT_PHONE_VERIFICATION)) {
             user.setPhoneNumberVerifiedAt(Instant.now());
             user.setStatus(UserStatus.ACTIVE);
             appUserRepo.save(user);
@@ -213,7 +213,7 @@ public class AuthService {
         } else {
             String code = otpService.generateOtpForUser(appUser.getId(), EMAIL_VERIFICATION);
             try {
-                emailService.sendVerificationEmail(appUser.getEmail(), code);
+                emailService.sendVerificationEmail(appUser.getEmail(), code,"Email verification for E-Car reservation system");
             } catch (MailException e) {
                 log.warn("Email Resend failed for user {}: {}", appUser.getId(), e.getMessage());
                 throw new EmailDeliveryException("Failed to resend verification email for email: " + request.getEmail());

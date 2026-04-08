@@ -18,11 +18,11 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
-    public void sendVerificationEmail(String to, String verificationCode) {
+    public void sendVerificationEmail(String to, String verificationCode, String subject) {
         SimpleMailMessage message = new SimpleMailMessage();
 
         message.setTo(to);
-        message.setSubject("Email verification for E-Car reservation system");
+        message.setSubject(subject);
         message.setText("this is your confirmation code : " + verificationCode);
         message.setFrom(email);
 

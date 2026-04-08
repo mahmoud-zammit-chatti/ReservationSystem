@@ -4,6 +4,7 @@ package com.reservationSys.reservationSys.Controllers;
 import com.reservationSys.reservationSys.DTOs.StationDTOs.*;
 import com.reservationSys.reservationSys.Services.Station.StationService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +24,7 @@ public class StationController {
     @PostMapping("add-station")
     @SecurityRequirement(name="Bearer Authentication")
 
-    public ResponseEntity<StationResponseDTO> addStation(StationRequestDTO request){
+    public ResponseEntity<StationResponseDTO> addStation(@Valid StationRequestDTO request){
         return ResponseEntity.ok(stationService.addStation(request));
     }
     @SecurityRequirement(name="Bearer Authentication")
@@ -48,7 +49,7 @@ public class StationController {
     @SecurityRequirement(name="Bearer Authentication")
 
     @GetMapping("/near-me")
-    public ResponseEntity<List<StationNearMeResponseDTO>> getStationNearMe(@ModelAttribute StationNearMeRequestDTO request) {
+    public ResponseEntity<List<StationNearMeResponseDTO>> getStationNearMe(@Valid @ModelAttribute StationNearMeRequestDTO request) {
         return ResponseEntity.ok(stationService.getStationsInRadius(request));
     }
     @SecurityRequirement(name="Bearer Authentication")

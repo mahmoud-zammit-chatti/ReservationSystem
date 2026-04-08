@@ -18,7 +18,7 @@ public class RefreshTokenService {
 
     private final RefreshTokenRepo refreshTokenRepo;
 
-    @Value("#{${refresh.token.expiration-days} * 24L * 60L * 60L * 10000L}")
+    @Value("#{${refresh.token.expiration-days} * 24L * 60L * 60L * 1000L}")
     private Long refreshTokenExpiration;
     @Value("${refresh.token.secret}")
     private String refreshTokenSecret;

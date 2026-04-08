@@ -11,8 +11,8 @@ public class UserRegistrationResponseDTO {
     private String phoneNumber;
     private String email;
 
-    private String SmsMsg;
-    private boolean SmsSent;
+    private String smsMsg;
+    private boolean smsSent;
 
     private String emailMsg;
     private boolean emailSent;

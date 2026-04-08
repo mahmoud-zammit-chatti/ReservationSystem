@@ -21,6 +21,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -41,26 +42,35 @@ public class PortService {
     private final PortRepo portRepo;
     private final ReservationRepo reservationRepo;
     private final PortStatusUpdateService portStatusUpdateService;
+    private final PortAvailabilityCheckService availabilityChecker;
 
-   private final  List<ReservationStatus> ACTIVESTATUS = List.of(ReservationStatus.CONFIRMED,ReservationStatus.CHECKED_IN,ReservationStatus.PENDING_OTP);
+    //unifed time
+    private final ZoneId businessZoneId;
+    private final Clock businessClock;
 
 
-    public PortService(StationRepo stationRepo, PortRepo portRepo, ReservationRepo reservationRepo, PortStatusUpdateService portStatusUpdateService) {
+    private final List<ReservationStatus> ACTIVESTATUS = List.of(ReservationStatus.CONFIRMED, ReservationStatus.CHECKED_IN, ReservationStatus.PENDING_OTP);
+
+
+    public PortService(StationRepo stationRepo, PortRepo portRepo, ReservationRepo reservationRepo, PortStatusUpdateService portStatusUpdateService, PortAvailabilityCheckService availabilityChecker, ZoneId businessZoneId, Clock businessClock) {
         this.stationRepo = stationRepo;
         this.portRepo = portRepo;
         this.reservationRepo = reservationRepo;
         this.portStatusUpdateService = portStatusUpdateService;
+        this.availabilityChecker = availabilityChecker;
+        this.businessZoneId = businessZoneId;
+        this.businessClock = businessClock;
     }
 
     @Transactional
     public PortResponseDTO addPort(PortAddRequestDTO request, UUID stationId) {
 
-        Station station = stationRepo.findById(stationId).orElseThrow(()-> new RessourceNotFound("station with this id not found"));
+        Station station = stationRepo.findById(stationId).orElseThrow(() -> new RessourceNotFound("station with this id not found"));
 
         Port port = Port.builder()
                 .name(request.getPortName())
                 .station(station)
-                .createdAt(Instant.now())
+                .createdAt(Instant.now(businessClock))
                 .status(PortStatus.AVAILABLE)
                 .build();
         portRepo.save(port);
@@ -74,7 +84,6 @@ public class PortService {
                 .build();
 
 
-
     }
 
     @Transactional
@@ -83,7 +92,7 @@ public class PortService {
         List<Port> ports = portRepo.findAllByStation_StationId(stationId);
 
         List<PortResponseDTO> portsDTO = new ArrayList<>();
-        for(Port p : ports){
+        for (Port p : ports) {
             portsDTO.add(
                     PortResponseDTO.builder()
                             .portName(p.getName())
@@ -98,8 +107,8 @@ public class PortService {
     }
 
     @Transactional
-    public PortResponseDTO updatePort(PortUpdateRequestDTO request, UUID stationId, UUID portId){
-        Port port = portRepo.findByIdAndStation_StationId(portId,stationId).orElseThrow(()-> new RessourceNotFound("can't find the requested port"));
+    public PortResponseDTO updatePort(PortUpdateRequestDTO request, UUID stationId, UUID portId) {
+        Port port = portRepo.findByIdAndStation_StationId(portId, stationId).orElseThrow(() -> new RessourceNotFound("can't find the requested port"));
 
         port.setName(request.getNewName());
         portRepo.save(port);
@@ -120,35 +129,35 @@ public class PortService {
         // if yes it can't be deleted but its status will be updated to expiring_soon and then it can't accept any
         // new reservations and set a scheduled job to delete the port when its reservations passed
 
-        List<Reservation> reservationList = reservationRepo.findAllByPortIdAndReservationStatusIn(portId,ACTIVESTATUS);
-        if(!reservationList.isEmpty()){
+        List<Reservation> reservationList = reservationRepo.findAllByPortIdAndReservationStatusIn(portId, ACTIVESTATUS);
+        if (!reservationList.isEmpty()) {
 
-        portStatusUpdateService.updatePortStatus(portId,stationId);
+            portStatusUpdateService.updatePortStatus(portId, stationId);
 
             throw new PortCantBeDeletedException("this port have one or more active reservation, it has been marked to be deleted as soon as no reservation is active on it and it can't accept any more reservation");
-        }else {
+        } else {
 
             Port port = portRepo.deleteByIdAndStation_StationId(portId, stationId).orElseThrow(() -> new RessourceNotFound("can't find the requested port"));
 
-        return PortResponseDTO.builder()
-                .portName(port.getName())
-                .portStatus(port.getStatus())
-                .portId(portId)
-                .stationId(stationId)
-                .accessIdentifier(port.getAccessIdentifier())
-                .build();
+            return PortResponseDTO.builder()
+                    .portName(port.getName())
+                    .portStatus(port.getStatus())
+                    .portId(portId)
+                    .stationId(stationId)
+                    .accessIdentifier(port.getAccessIdentifier())
+                    .build();
         }
 
     }
 
     @Transactional
     @Scheduled(fixedDelayString = "${port_deletion_scheduler_interval}")
-    public void deletePortsOnSchedule(){
+    public void deletePortsOnSchedule() {
         List<Port> portList = portRepo.PortsToBeDeleted();
 
         portRepo.deleteAll(portList);
 
-        if(!portList.isEmpty()){
+        if (!portList.isEmpty()) {
             log("Some ports were deleted by a scheduled service !");
         }
 
@@ -158,30 +167,30 @@ public class PortService {
     public List<TimeSlotsDTO> getAvailableTimeSlots(UUID stationId, UUID portId, LocalDate date, Duration duration) {
 
 
-        Port port = portRepo.findByIdAndStation_StationId(portId, stationId).orElseThrow(()-> new RessourceNotFound("can't find the requested port"));
+        Port port = portRepo.findByIdAndStation_StationId(portId, stationId).orElseThrow(() -> new RessourceNotFound("can't find the requested port"));
 
-        Instant dayStart = date.atStartOfDay(ZoneId.systemDefault()).toInstant();
+        Instant dayStart = date.atStartOfDay(businessZoneId).toInstant();
 
 
         Instant dayEnd = dayStart.plus(1, ChronoUnit.DAYS);
 
         List<String> statuses = ACTIVESTATUS.stream().map(Enum::name).toList();
 
-        List<Reservation> reservationList = reservationRepo.findByPortStationAndDate(portId,stationId,statuses,dayStart,dayEnd);
+        List<Reservation> reservationList = reservationRepo.findByPortStationAndDate(portId, stationId, statuses, dayStart, dayEnd);
 
 
         List<TimeSlotsDTO> result = new ArrayList<>();
 
-        for(int i=0;i<=23;i++){
+        for (int i = 0; i <= 23; i++) {
             Instant candidateStart = date.atTime(i, 0).atZone(ZoneId.systemDefault()).toInstant();
-            Instant candidateEnd = candidateStart.plus(duration.getHours(),ChronoUnit.HOURS);
-            if(isTimeSLotAvailable(candidateStart,candidateEnd,reservationList)){
+            Instant candidateEnd = candidateStart.plus(duration.getHours(), ChronoUnit.HOURS);
+            if (availabilityChecker.isTimeSLotAvailable(candidateStart, candidateEnd, reservationList)) {
                 result.add(
                         TimeSlotsDTO.builder()
                                 .portId(portId)
                                 .portName(port.getName())
                                 .startTime(i)
-                                .endTime(candidateEnd.atZone(ZoneId.systemDefault()).getHour())
+                                .endTime(candidateEnd.atZone(businessZoneId).getHour())
                                 .build()
                 );
             }
@@ -190,14 +199,29 @@ public class PortService {
         return result;
     }
 
-    @Transactional
-    protected boolean isTimeSLotAvailable(Instant startTime, Instant endTime ,List<Reservation> reservationList){
-        for(Reservation res : reservationList){
-            if(
-                    res.getStartTime().isBefore(endTime) &&
-                    res.getEndTime().isAfter(startTime)
-            )return false;
+
+    public List<PortResponseDTO> getAvailablePorts(UUID stationId, LocalDate date, int startingTime, Duration duration) {
+
+        List<PortResponseDTO> responseDTOS = new ArrayList<>();
+
+        List<Port> portList = portRepo.findAllByStation_StationId(stationId);
+        Instant candidateStart = date.atTime(startingTime, 0, 0, 0).atZone(businessZoneId).toInstant();
+        Instant candidateEnd = candidateStart.plus(duration.getHours(), ChronoUnit.HOURS);
+
+        for (Port p : portList) {
+            List<Reservation> reservationList = reservationRepo.findByPortStationAndDate(p.getId(), stationId, ACTIVESTATUS.stream().map(Enum::name).toList(), candidateStart, candidateEnd);
+            if (availabilityChecker.isTimeSLotAvailable(candidateStart, candidateEnd, reservationList)) {
+                responseDTOS.add(PortResponseDTO.builder()
+                        .portName(p.getName())
+                        .portId(p.getId())
+                        .stationId(stationId)
+                        .portStatus(p.getStatus())
+                        .accessIdentifier(p.getAccessIdentifier())
+                        .build());
+
+
+            }
         }
-        return true;
+        return responseDTOS;
     }
 }

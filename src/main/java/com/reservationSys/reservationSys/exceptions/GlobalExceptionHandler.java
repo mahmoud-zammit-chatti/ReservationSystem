@@ -3,16 +3,19 @@ package com.reservationSys.reservationSys.exceptions;
 
 
 import com.reservationSys.reservationSys.exceptions.AuthExceptions.*;
-import com.reservationSys.reservationSys.exceptions.CarExceptions.BlockedCarException;
-import com.reservationSys.reservationSys.exceptions.CarExceptions.CarAlreadyVerifiedException;
-import com.reservationSys.reservationSys.exceptions.CarExceptions.DuplicateChassisNumberException;
-import com.reservationSys.reservationSys.exceptions.CarExceptions.DuplicatePlateNumberException;
+import com.reservationSys.reservationSys.exceptions.CarExceptions.*;
+import com.reservationSys.reservationSys.exceptions.GeneralExceptions.NotAuthorizedException;
 import com.reservationSys.reservationSys.exceptions.GeneralExceptions.RessourceNotFound;
 import com.reservationSys.reservationSys.exceptions.GeneralExceptions.TooManyRequestsException;
 import com.reservationSys.reservationSys.exceptions.PortExceptions.PortCantBeDeletedException;
+import com.reservationSys.reservationSys.exceptions.PortExceptions.PortNotAvailableException;
+import com.reservationSys.reservationSys.exceptions.ReservationExceptions.ReservationCancellationException;
+import com.reservationSys.reservationSys.exceptions.ReservationExceptions.ReservationConfirmationException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -30,7 +33,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UserAlreadyExists.class)
-    public ResponseEntity<ApiError> handleUserAlreadyExistsException(UserAlreadyExists ex){
+    public ResponseEntity<ApiError> handleUserAlreadyExistsException(UserAlreadyExists ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT.value()).body(
                 new ApiError(
                         Instant.now(),
@@ -44,7 +47,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IncorrectCredentials.class)
-    public ResponseEntity<ApiError> handleIncorrectCredentialsException(IncorrectCredentials ex){
+    public ResponseEntity<ApiError> handleIncorrectCredentialsException(IncorrectCredentials ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED.value()).body(
                 new ApiError(
                         Instant.now(),
@@ -56,8 +59,9 @@ public class GlobalExceptionHandler {
                 )
         );
     }
+
     @ExceptionHandler(RessourceNotFound.class)
-    public ResponseEntity<ApiError> handleRessourceNotFoundException(RessourceNotFound ex){
+    public ResponseEntity<ApiError> handleRessourceNotFoundException(RessourceNotFound ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND.value()).body(
                 new ApiError(
                         Instant.now(),
@@ -70,8 +74,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AuthenticationError.class)
-    public ResponseEntity<ApiError> handleAuthenticationErrorException(AuthenticationError ex){
-        return  ResponseEntity.status(HttpStatus.UNAUTHORIZED.value()).body(
+    public ResponseEntity<ApiError> handleAuthenticationErrorException(AuthenticationError ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED.value()).body(
                 new ApiError(
                         Instant.now(),
                         HttpStatus.UNAUTHORIZED.value(),
@@ -81,8 +85,9 @@ public class GlobalExceptionHandler {
                         null
                 ));
     }
+
     @ExceptionHandler(SmsDeliveryException.class)
-    public ResponseEntity<ApiError> handleSmsDeliveryException(SmsDeliveryException ex){
+    public ResponseEntity<ApiError> handleSmsDeliveryException(SmsDeliveryException ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value()).body(
                 new ApiError(
                         Instant.now(),
@@ -96,7 +101,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiError> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex){
+    public ResponseEntity<ApiError> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(
                 new ApiError(
                         Instant.now(),
@@ -106,14 +111,14 @@ public class GlobalExceptionHandler {
                         request.getRequestURI(),
 
                         ex.getBindingResult().getFieldErrors().stream()
-                                .map(error -> new ValidationErrorDetail(error.getField() , error.getDefaultMessage()))
+                                .map(error -> new ValidationErrorDetail(error.getField(), error.getDefaultMessage()))
                                 .toList()
                 )
         );
     }
 
     @ExceptionHandler(EmailNotVerifiedException.class)
-    public ResponseEntity<ApiError> handleEmailNotVerifiedException(EmailNotVerifiedException ex){
+    public ResponseEntity<ApiError> handleEmailNotVerifiedException(EmailNotVerifiedException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED.value()).body(
                 new ApiError(
                         Instant.now(),
@@ -126,8 +131,8 @@ public class GlobalExceptionHandler {
         );
     }
 
-        @ExceptionHandler(TooManyRequestsException.class)
-    public ResponseEntity<ApiError> handleTooManyRequestsException(TooManyRequestsException ex){
+    @ExceptionHandler(TooManyRequestsException.class)
+    public ResponseEntity<ApiError> handleTooManyRequestsException(TooManyRequestsException ex) {
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS.value()).body(
                 new ApiError(
                         Instant.now(),
@@ -138,10 +143,10 @@ public class GlobalExceptionHandler {
                         null
                 )
         );
-        }
+    }
 
-        @ExceptionHandler(EmailDeliveryException.class)
-    public ResponseEntity<ApiError> handleEmailDeliveryException(EmailDeliveryException ex){
+    @ExceptionHandler(EmailDeliveryException.class)
+    public ResponseEntity<ApiError> handleEmailDeliveryException(EmailDeliveryException ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value()).body(
                 new ApiError(
                         Instant.now(),
@@ -152,10 +157,10 @@ public class GlobalExceptionHandler {
                         null
                 )
         );
-        }
+    }
 
-        @ExceptionHandler(EmailAleadyVerifed.class)
-    public ResponseEntity<ApiError> handleBadRequestException(EmailAleadyVerifed ex){
+    @ExceptionHandler(EmailAleadyVerifed.class)
+    public ResponseEntity<ApiError> handleBadRequestException(EmailAleadyVerifed ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(
                 new ApiError(
                         Instant.now(),
@@ -166,10 +171,10 @@ public class GlobalExceptionHandler {
                         null
                 )
         );
-        }
+    }
 
-        @ExceptionHandler(PhoneNumberAlreadyVerified.class)
-    public ResponseEntity<ApiError> handlePhoneNumberAlreadyVerifiedException(PhoneNumberAlreadyVerified ex){
+    @ExceptionHandler(PhoneNumberAlreadyVerified.class)
+    public ResponseEntity<ApiError> handlePhoneNumberAlreadyVerifiedException(PhoneNumberAlreadyVerified ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(
                 new ApiError(
                         Instant.now(),
@@ -180,10 +185,10 @@ public class GlobalExceptionHandler {
                         null
                 )
         );
-        }
+    }
 
-        @ExceptionHandler(DuplicateChassisNumberException.class)
-    public ResponseEntity<ApiError> handleDuplicateChassisNumberException(DuplicateChassisNumberException ex){
+    @ExceptionHandler(DuplicateChassisNumberException.class)
+    public ResponseEntity<ApiError> handleDuplicateChassisNumberException(DuplicateChassisNumberException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT.value()).body(
                 new ApiError(
                         Instant.now(),
@@ -194,10 +199,10 @@ public class GlobalExceptionHandler {
                         null
                 )
         );
-        }
+    }
 
-            @ExceptionHandler(DuplicatePlateNumberException.class)
-    public ResponseEntity<ApiError> handleDuplicatePlateNumberException(DuplicatePlateNumberException ex){
+    @ExceptionHandler(DuplicatePlateNumberException.class)
+    public ResponseEntity<ApiError> handleDuplicatePlateNumberException(DuplicatePlateNumberException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT.value()).body(
                 new ApiError(
                         Instant.now(),
@@ -211,7 +216,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(BlockedCarException.class)
-    public ResponseEntity<ApiError> handleCorruptedCarException(BlockedCarException ex){
+    public ResponseEntity<ApiError> handleCorruptedCarException(BlockedCarException ex) {
 
         return ResponseEntity.status(HttpStatus.LOCKED.value()).body(
                 new ApiError(
@@ -227,7 +232,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(CarAlreadyVerifiedException.class)
-    public ResponseEntity<ApiError> handleCarAlreadyVerifiedException(CarAlreadyVerifiedException ex){
+    public ResponseEntity<ApiError> handleCarAlreadyVerifiedException(CarAlreadyVerifiedException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT.value()).body(
                 new ApiError(
                         Instant.now(),
@@ -235,13 +240,13 @@ public class GlobalExceptionHandler {
                         HttpStatus.CONFLICT.name(),
                         ex.getMessage(),
                         request.getRequestURI(),
-                       null
+                        null
                 )
         );
     }
 
     @ExceptionHandler(PortCantBeDeletedException.class)
-    public ResponseEntity<ApiError> handlePortCantBeDeletedException(PortCantBeDeletedException ex){
+    public ResponseEntity<ApiError> handlePortCantBeDeletedException(PortCantBeDeletedException ex) {
         return ResponseEntity.status(HttpStatus.IM_USED.value()).body(
                 new ApiError(
                         Instant.now(),
@@ -253,4 +258,92 @@ public class GlobalExceptionHandler {
                 )
         );
     }
+
+    @ExceptionHandler(CarNotVerifiedException.class)
+    public ResponseEntity<ApiError> handleCarNotVerifiedException(CarNotVerifiedException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE.value()).body(
+                new ApiError(
+                        Instant.now(),
+                        HttpStatus.NOT_ACCEPTABLE.value(),
+                        HttpStatus.NOT_ACCEPTABLE.name(),
+                        ex.getMessage(),
+                        request.getRequestURI(),
+                        null
+                )
+        );
+    }
+
+    @ExceptionHandler(PortNotAvailableException.class)
+    public ResponseEntity<ApiError> handlePortNotAvailableException(PortNotAvailableException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value()).body(
+                new ApiError(
+                        Instant.now(),
+                        HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                        HttpStatus.INTERNAL_SERVER_ERROR.name(),
+                        ex.getMessage(),
+                        request.getRequestURI(),
+                        null
+                )
+        );
+    }
+
+    @ExceptionHandler(NotAuthorizedException.class)
+    public ResponseEntity<ApiError> handleNotAuthorizedException(NotAuthorizedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN.value()).body(
+                new ApiError(
+                        Instant.now(),
+                        HttpStatus.FORBIDDEN.value(),
+                        HttpStatus.FORBIDDEN.name(),
+                        ex.getMessage(),
+                        request.getRequestURI(),
+                        null
+                )
+        );
+    }
+
+    @ExceptionHandler(ReservationConfirmationException.class)
+    public ResponseEntity<ApiError> handleReservationConfirmationException(ReservationConfirmationException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value()).body(
+                new ApiError(
+                        Instant.now(),
+                        HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                        HttpStatus.INTERNAL_SERVER_ERROR.name(),
+                        ex.getMessage(),
+                        request.getRequestURI(),
+                        null
+                )
+        );
+    }
+
+    @ExceptionHandler(ReservationCancellationException.class)
+    public ResponseEntity<ApiError> handleReservationCancellationException(ReservationCancellationException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value()).body(
+                new ApiError(
+                        Instant.now(),
+                        HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                        HttpStatus.INTERNAL_SERVER_ERROR.name(),
+                        ex.getMessage(),
+                        request.getRequestURI(),
+                        null
+                )
+        );
+    }
+
+    @ExceptionHandler(BindException.class)
+    public ResponseEntity<ApiError> handleBindException(BindException ex){
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(
+                new ApiError(
+                        Instant.now(),
+                        HttpStatus.BAD_REQUEST.value(),
+                        HttpStatus.BAD_REQUEST.name(),
+                        "Invalid request parameters",
+                        request.getRequestURI(),
+                        ex.getBindingResult().getFieldErrors().stream()
+                                .map(error -> new ValidationErrorDetail(error.getField(), error.getDefaultMessage()))
+                                .toList()
+                )
+        );
+    }
+
 }

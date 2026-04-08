@@ -2,8 +2,8 @@ package com.reservationSys.reservationSys.Domain.reservation;
 
 public enum PenaltyType {
 
-    NO_PENALTY,
-    NO_SHOW_PENALTY,
-    LATE_CANCEL_PENALTY,
+    NO_PENALTY,//100% refund
+    NO_SHOW_PENALTY, //No refund only
+    LATE_CANCEL_PENALTY//50% refund only ,
 
 }

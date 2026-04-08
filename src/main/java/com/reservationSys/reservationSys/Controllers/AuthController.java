@@ -31,17 +31,17 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponseDTO> login(@RequestBody LoginUserDTO loginUserDTO){
+    public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginUserDTO loginUserDTO){
         return ResponseEntity.ok().body(authService.login(loginUserDTO));
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(@RequestBody RefreshTokenRequestDTO request){
+    public ResponseEntity<String> logout(@Valid @RequestBody RefreshTokenRequestDTO request){
         return ResponseEntity.ok(authService.logout(request.getRefreshToken()));
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<AuthResponseDTO> refresh(@RequestBody RefreshTokenRequestDTO request){
+    public ResponseEntity<AuthResponseDTO> refresh(@Valid @RequestBody RefreshTokenRequestDTO request){
         return ResponseEntity.ok().body(authService.refresh(request.getRefreshToken()));
     }
 
