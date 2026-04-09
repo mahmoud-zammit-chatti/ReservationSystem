@@ -9,7 +9,6 @@
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
-SET transaction_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
@@ -296,7 +295,5 @@ ALTER TABLE ONLY public.users
 
 ALTER TABLE ONLY public.port
     ADD CONSTRAINT fknj835ewblqp7ss0y7rpq1crcp FOREIGN KEY (station_id) REFERENCES public.station(station_id);
-
-
 
 

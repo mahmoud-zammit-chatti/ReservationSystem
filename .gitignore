@@ -14,6 +14,8 @@ target/
 .sts4-cache
 # Ignore application.properties, which may contain sensitive information such as database credentials #
 src/main/resources/application-local.properties
+# .env files may contain sensitive information such as database credentials #
+.env
 
 ### IntelliJ IDEA ###
 .idea
