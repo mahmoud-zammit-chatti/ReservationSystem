@@ -24,7 +24,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Map;
 import java.util.Optional;
 
@@ -44,7 +46,11 @@ public class AuthService {
     private final EmailService emailService;
     private final OtpRepo otpRepo;
 
-    public AuthService(JwtService jwtService, AppUserRepo appUserRepo, PasswordEncoder bCryptPasswordEncoder, RefreshTokenService refreshTokenService, RefreshTokenRepo refreshTokenRepo, OtpService otpService, TwilioService twilioService, EmailService emailService, OtpRepo otpRepo) {
+
+    private final ZoneId buisnesZoneId;
+    private final Clock buisnesClock;
+
+    public AuthService(JwtService jwtService, AppUserRepo appUserRepo, PasswordEncoder bCryptPasswordEncoder, RefreshTokenService refreshTokenService, RefreshTokenRepo refreshTokenRepo, OtpService otpService, TwilioService twilioService, EmailService emailService, OtpRepo otpRepo, ZoneId buisnesZoneId, Clock buisnesClock) {
         this.jwtService = jwtService;
         this.appUserRepo = appUserRepo;
 
@@ -55,6 +61,8 @@ public class AuthService {
         this.twilioService = twilioService;
         this.emailService = emailService;
         this.otpRepo = otpRepo;
+        this.buisnesZoneId = buisnesZoneId;
+        this.buisnesClock = buisnesClock;
     }
 
     @Transactional
@@ -72,8 +80,8 @@ public class AuthService {
                 .status(UserStatus.INACTIVE)
                 .userRole(UserRole.USER)
                 .emailVerifiedAt(null)
-                .phoneNumberVerifiedAt(null)
-                .createdAt(Instant.now())
+                .phoneNumberVerifiedAt(Instant.now(buisnesClock))
+                .createdAt(Instant.now(buisnesClock))
                 .build();
         UserRegistrationResponseDTO responseDTO = UserRegistrationResponseDTO.builder()
                 .email(registerUserDTO.getEmail())
@@ -93,8 +101,8 @@ public class AuthService {
 
 
         try {
-            twilioService.sendSms(user.getPhoneNumber(), codeSms); //only enable this when testing for the otp code sending otherwise this costs money!!!!!!!
-            responseDTO.setSmsMsg("Sms was sent with success");
+           // twilioService.sendSms(user.getPhoneNumber(), codeSms); //only enable this when testing for the otp code sending otherwise this costs money!!!!!!!
+            responseDTO.setSmsMsg("due to lack of credit in the api the sms sending feature is currently paused, feel free to check the code to see the implementation in authService.java line 96");
             responseDTO.setSmsSent(true);
         } catch (ApiException e) {
             log.warn("SMS failed for user {}: {}", user.getId(), e.getMessage());
@@ -106,7 +114,7 @@ public class AuthService {
         //email part
         try {
             emailService.sendVerificationEmail(user.getEmail(), codeEmail,"Email verification for E-Car reservation system");
-            responseDTO.setEmailMsg("Email was sent with success");
+            responseDTO.setEmailMsg("Email was sent with success, please verify with the code you just received");
             responseDTO.setEmailSent(true);
         } catch (MailException e) {
             log.warn("Email failed for user {}: {}", user.getId(), e.getMessage());
@@ -175,7 +183,7 @@ public class AuthService {
             throw new IncorrectCredentials("Email already verified ");
         }
         if (twilioService.verifyEmailCode(user.getId(), code)) {
-            user.setEmailVerifiedAt(Instant.now());
+            user.setEmailVerifiedAt(Instant.now(buisnesClock));
             appUserRepo.save(user);
         } else {
             throw new IncorrectCredentials("Invalid verification code for email: " + email);
@@ -189,7 +197,7 @@ public class AuthService {
             throw new IncorrectCredentials("Phone number already verified ");
         }
         if (otpService.verifyOtp(user.getId(), code, ACCOUNT_PHONE_VERIFICATION)) {
-            user.setPhoneNumberVerifiedAt(Instant.now());
+            user.setPhoneNumberVerifiedAt(Instant.now(buisnesClock));
             user.setStatus(UserStatus.ACTIVE);
             appUserRepo.save(user);
         } else {
@@ -208,7 +216,7 @@ public class AuthService {
         }
         Optional<OTP> emailOtpOpt = otpRepo.findTopByUserIdAndPurposeOrderByCreatedAtDesc(appUser.getId(), EMAIL_VERIFICATION);
 
-        if (emailOtpOpt.isPresent() && emailOtpOpt.get().getCreatedAt().plusSeconds(120).isAfter(Instant.now())) {
+        if (emailOtpOpt.isPresent() && emailOtpOpt.get().getCreatedAt().plusSeconds(120).isAfter(Instant.now(buisnesClock))) {
             throw new TooManyRequestsException("Please wait before requesting another verification code for email: " + request.getEmail());
         } else {
             String code = otpService.generateOtpForUser(appUser.getId(), EMAIL_VERIFICATION);
@@ -228,7 +236,7 @@ public class AuthService {
             throw new PhoneNumberAlreadyVerified("Phone number already verified for user with email: " + appUser.getEmail());
         }
         Optional<OTP> phoneOtpOpt = otpRepo.findTopByUserIdAndPurposeOrderByCreatedAtDesc(appUser.getId(), ACCOUNT_PHONE_VERIFICATION);
-        if (phoneOtpOpt.isPresent() && phoneOtpOpt.get().getCreatedAt().plusSeconds(120).isAfter(Instant.now())) {
+        if (phoneOtpOpt.isPresent() && phoneOtpOpt.get().getCreatedAt().plusSeconds(120).isAfter(Instant.now(buisnesClock))) {
             throw new TooManyRequestsException("Please wait before requesting another verification code for phone number: " + appUser.getPhoneNumber());
         } else {
             String code = otpService.generateOtpForUser(appUser.getId(), OtpPurpose.ACCOUNT_PHONE_VERIFICATION);
