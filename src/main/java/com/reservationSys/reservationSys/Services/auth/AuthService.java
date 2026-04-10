@@ -102,7 +102,7 @@ public class AuthService {
 
         try {
            // twilioService.sendSms(user.getPhoneNumber(), codeSms); //only enable this when testing for the otp code sending otherwise this costs money!!!!!!!
-            responseDTO.setSmsMsg("due to lack of credit in the api the sms sending feature is currently paused, feel free to check the code to see the implementation in authService.java line 96");
+            responseDTO.setSmsMsg("due to lack of credit in the api the sms sending feature is currently paused, feel free to check the code to see the implementation in authService.java line 104");
             responseDTO.setSmsSent(true);
         } catch (ApiException e) {
             log.warn("SMS failed for user {}: {}", user.getId(), e.getMessage());
