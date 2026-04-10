@@ -82,7 +82,7 @@ public class AuthService {
                 .build();
         appUserRepo.save(user);
 
-        String code = otpService.generateOtpForUser(
+        String codeSms = otpService.generateOtpForUser(
                 user.getId(),
                 ACCOUNT_PHONE_VERIFICATION
         );
@@ -93,7 +93,7 @@ public class AuthService {
 
 
         try {
-            twilioService.sendSms(user.getPhoneNumber(), code); //only enable this when testing for the otp code sending otherwise this costs money!!!!!!!
+            twilioService.sendSms(user.getPhoneNumber(), codeSms); //only enable this when testing for the otp code sending otherwise this costs money!!!!!!!
             responseDTO.setSmsMsg("Sms was sent with success");
             responseDTO.setSmsSent(true);
         } catch (ApiException e) {

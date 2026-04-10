@@ -129,6 +129,7 @@ public class CarService {
 
     }
 
+    @Transactional
     public ArrayList<CarResponseDTO> getCarsForUser(AppUser currentUser) {
         List<Car> cars= carRepo.findAllByUserIdAndDeletedAtIsNull(currentUser.getId());
         ArrayList<CarResponseDTO> carResponseDTOS = new ArrayList<>();
@@ -143,7 +144,7 @@ public class CarService {
         return carResponseDTOS;
     }
 
-
+@Transactional
     public CarResponseDTO getCarByIdForUser(AppUser currentUser, UUID carId) {
         Car car = carRepo.findByIdAndUserIdAndDeletedAtIsNull(carId,currentUser.getId()).orElseThrow(()->new RessourceNotFound("No har with this id is found for this user"));
 
@@ -156,7 +157,7 @@ public class CarService {
         );
     }
 
-    //soft delete to implement for the future
+    @Transactional
     public List<CarResponseDTO> deleteAllCarsForUser(AppUser currentUser) {
         List<Car> deletedCars = carRepo.findAllByUserIdAndDeletedAtIsNull(currentUser.getId());
         List<CarResponseDTO> response = new ArrayList<>();
@@ -186,6 +187,7 @@ public class CarService {
     }
 
 
+    @Transactional
     public CarResponseDTO deleteCarByIdForUser(AppUser currentUser, UUID carId) {
 
         Car deletedCar = carRepo.findByIdAndUserIdAndDeletedAtIsNull(carId,currentUser.getId()).orElseThrow(()->new RessourceNotFound("No car with this id is found for this user"));

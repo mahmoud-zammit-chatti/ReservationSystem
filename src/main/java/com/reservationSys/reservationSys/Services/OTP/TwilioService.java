@@ -45,17 +45,12 @@ public class TwilioService {
     }
 
     public void sendSms(String toPhone,String message) {
-
-
             Message.creator(
                             new PhoneNumber(toPhone),
                             new PhoneNumber(twilioPhoneNumber),
-                            "This is your confirmation code from the E-Car Charging Rental System: " + message
+                            "This is your confirmation code from the' E-Car Charging Rental System: " + message
                     )
                     .create();
-
-
-
 
     }
 

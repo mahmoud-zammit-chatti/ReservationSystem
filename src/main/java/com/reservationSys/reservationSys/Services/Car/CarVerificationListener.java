@@ -13,10 +13,4 @@ public class CarVerificationListener {
     public CarVerificationListener(CarVerificationService carVerificationService) {
         this.carVerificationService = carVerificationService;
     }
-
-
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void onCarCreated(CarCreatedEvent event) {
-        carVerificationService.verifyCar(event.carId());
-    }
 }
