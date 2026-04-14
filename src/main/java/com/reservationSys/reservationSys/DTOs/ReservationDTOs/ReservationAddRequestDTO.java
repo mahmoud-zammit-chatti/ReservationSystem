@@ -3,8 +3,10 @@ package com.reservationSys.reservationSys.DTOs.ReservationDTOs;
 
 import com.reservationSys.reservationSys.Models.reservation.Duration;
 import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
@@ -12,6 +14,8 @@ import java.util.UUID;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ReservationAddRequestDTO {
 
     @NotNull(message = "Port ID is required")

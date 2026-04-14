@@ -83,7 +83,7 @@ public class ReservationService {
 
         //checking if port is available for the requested duration
         if (port.getStatus() != PortStatus.AVAILABLE) {
-            throw new PortNotAvailableException("Port is not available for the requested duration");
+            throw new PortNotAvailableException("Port is currently not available for reservation, please choose another port or try again later :)");
         }
         Instant candidateStartTime = requestDTO.getStartDate().atTime(requestDTO.getStartTimeHour(), 0, 0, 0).atZone(buisnessZoneId).toInstant();
         Instant candidateEndTime = candidateStartTime.plus(requestDTO.getDuration().getHours(), ChronoUnit.HOURS);
