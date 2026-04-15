@@ -1,7 +1,7 @@
 package com.reservationSys.reservationSys.Exceptions.GeneralExceptions;
 
-public class RessourceNotFound extends RuntimeException{
-    public RessourceNotFound(String message) {
+public class ResourceNotFound extends RuntimeException{
+    public ResourceNotFound(String message) {
         super(message);
     }
 }

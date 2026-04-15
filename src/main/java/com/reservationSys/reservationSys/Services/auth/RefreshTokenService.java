@@ -5,7 +5,7 @@ import com.reservationSys.reservationSys.Models.user.AppUser;
 import com.reservationSys.reservationSys.Models.user.RefreshToken;
 import com.reservationSys.reservationSys.Repositories.RefreshTokenRepo;
 import com.reservationSys.reservationSys.Exceptions.AuthExceptions.AuthenticationError;
-import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.RessourceNotFound;
+import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.ResourceNotFound;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,7 +49,7 @@ public class RefreshTokenService {
     public RefreshToken validateRefreshToken(String token){
 
         RefreshToken refreshToken = refreshTokenRepo.findByToken(token)
-                .orElseThrow(()-> new RessourceNotFound("Refresh token not found"));
+                .orElseThrow(()-> new ResourceNotFound("Refresh token not found"));
 
         if (refreshToken.getExpiresAt().isBefore(Instant.now())){
             refreshToken.setIsRevoked(true);
@@ -66,7 +66,7 @@ public class RefreshTokenService {
     @Transactional
     public RefreshToken rotateRefreshToken(String token){
         RefreshToken refreshToken = refreshTokenRepo.findByToken(token)
-                .orElseThrow(()-> new RessourceNotFound("Refresh token not found"));
+                .orElseThrow(()-> new ResourceNotFound("Refresh token not found"));
         if (refreshToken.getExpiresAt().isBefore(Instant.now())){
             refreshToken.setIsRevoked(true);
             refreshTokenRepo.save(refreshToken);

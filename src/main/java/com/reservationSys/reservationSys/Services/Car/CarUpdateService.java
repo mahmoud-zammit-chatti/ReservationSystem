@@ -4,7 +4,7 @@ import com.reservationSys.reservationSys.Models.car.Car;
 import com.reservationSys.reservationSys.Models.car.CarStatus;
 import com.reservationSys.reservationSys.Repositories.CarRepo;
 import com.reservationSys.reservationSys.Exceptions.CarExceptions.BlockedCarException;
-import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.RessourceNotFound;
+import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.ResourceNotFound;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +22,7 @@ public class CarUpdateService {
 
     @Transactional
     public void updateCarStatus(UUID carId, boolean isVerified ) {
-        Car carToUpdate = carRepo.findById(carId).orElseThrow(() -> new RessourceNotFound("Car with id " + carId + " not found"));
+        Car carToUpdate = carRepo.findById(carId).orElseThrow(() -> new ResourceNotFound("Car with id " + carId + " not found"));
 
         if(isVerified) {
             carToUpdate.setStatus(CarStatus.VERIFIED);
@@ -40,7 +40,7 @@ public class CarUpdateService {
     }
 
         public void tryUnblock(UUID carId) {
-            Car carToUnblock = carRepo.findById(carId).orElseThrow(() -> new RessourceNotFound("Car with id " + carId + " not found"));
+            Car carToUnblock = carRepo.findById(carId).orElseThrow(() -> new ResourceNotFound("Car with id " + carId + " not found"));
             if(carToUnblock.getBlockedAt().isBefore(Instant.now().minus(24, ChronoUnit.HOURS))) {
                 carToUnblock.setBlockedAt(null);
                 carToUnblock.setStatus(CarStatus.UNVERIFIED);

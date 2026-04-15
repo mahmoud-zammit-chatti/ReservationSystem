@@ -15,7 +15,7 @@ import com.reservationSys.reservationSys.Repositories.CarRepo;
 import com.reservationSys.reservationSys.Exceptions.CarExceptions.CarAlreadyVerifiedException;
 import com.reservationSys.reservationSys.Exceptions.CarExceptions.DuplicateChassisNumberException;
 import com.reservationSys.reservationSys.Exceptions.CarExceptions.DuplicatePlateNumberException;
-import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.RessourceNotFound;
+import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.ResourceNotFound;
 import com.reservationSys.reservationSys.Repositories.ReservationRepo;
 import com.reservationSys.reservationSys.Services.Reservation.ReservationService;
 import org.springframework.context.ApplicationEventPublisher;
@@ -104,7 +104,7 @@ public class CarService {
     public ResendCarVerificationResponseDTO resendVerification(AppUser authUser, UUID carId, MultipartFile carteGrise) {
 
         Car car = carRepo.findByIdAndUserIdAndDeletedAtIsNull(carId, authUser.getId())
-                .orElseThrow(() -> new RessourceNotFound("Car not found for the given ID and user."));
+                .orElseThrow(() -> new ResourceNotFound("Car not found for the given ID and user."));
 
         if(car.getStatus()==CarStatus.VERIFIED) {
             throw new CarAlreadyVerifiedException("Car is already verified.");
@@ -146,7 +146,7 @@ public class CarService {
 
 @Transactional
     public CarResponseDTO getCarByIdForUser(AppUser currentUser, UUID carId) {
-        Car car = carRepo.findByIdAndUserIdAndDeletedAtIsNull(carId,currentUser.getId()).orElseThrow(()->new RessourceNotFound("No har with this id is found for this user"));
+        Car car = carRepo.findByIdAndUserIdAndDeletedAtIsNull(carId,currentUser.getId()).orElseThrow(()->new ResourceNotFound("No har with this id is found for this user"));
 
 
         return new CarResponseDTO(
@@ -162,7 +162,7 @@ public class CarService {
         List<Car> deletedCars = carRepo.findAllByUserIdAndDeletedAtIsNull(currentUser.getId());
         List<CarResponseDTO> response = new ArrayList<>();
         if(deletedCars.isEmpty()) {
-            throw new RessourceNotFound("No cars to delete, you don't have any car registered");
+            throw new ResourceNotFound("No cars to delete, you don't have any car registered");
         }else {
             for (Car car : deletedCars) {
                 List<Reservation> reservations = reservationRepo.findAllByCarId(car.getId());
@@ -190,7 +190,7 @@ public class CarService {
     @Transactional
     public CarResponseDTO deleteCarByIdForUser(AppUser currentUser, UUID carId) {
 
-        Car deletedCar = carRepo.findByIdAndUserIdAndDeletedAtIsNull(carId,currentUser.getId()).orElseThrow(()->new RessourceNotFound("No car with this id is found for this user"));
+        Car deletedCar = carRepo.findByIdAndUserIdAndDeletedAtIsNull(carId,currentUser.getId()).orElseThrow(()->new ResourceNotFound("No car with this id is found for this user"));
         //azureBlobStorageService.deleteImage(deletedCar.getCarteGriseUrl()); to implement
 
 

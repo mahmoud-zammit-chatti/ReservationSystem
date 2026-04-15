@@ -7,7 +7,7 @@ import com.reservationSys.reservationSys.Models.otp.OtpStatus;
 import com.reservationSys.reservationSys.Models.user.AppUser;
 import com.reservationSys.reservationSys.Repositories.AppUserRepo;
 import com.reservationSys.reservationSys.Repositories.OtpRepo;
-import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.RessourceNotFound;
+import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.ResourceNotFound;
 import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;
@@ -56,15 +56,15 @@ public class TwilioService {
 
 
     public boolean verifyEmailCode(UUID userId, String code) {
-        AppUser appUser = appUserRepo.findById(userId).orElseThrow(() -> new RessourceNotFound("User with id: " + userId + " not found"));
+        AppUser appUser = appUserRepo.findById(userId).orElseThrow(() -> new ResourceNotFound("User with id: " + userId + " not found"));
 
         OTP otp = otpRepo.findByUserIdAndPurposeAndStatus(userId, OtpPurpose.EMAIL_VERIFICATION, OtpStatus.PENDING)
-                .orElseThrow(() -> new RessourceNotFound("No pending OTP found for user with email: " + appUser.getEmail()));
+                .orElseThrow(() -> new ResourceNotFound("No pending OTP found for user with email: " + appUser.getEmail()));
 
         if(otp.getExpiresAt().isBefore(Instant.now())){
             otp.setStatus(OtpStatus.EXPIRED);
             otpRepo.save(otp);
-            throw new RessourceNotFound("Email OTP has expired, Please request for another verification email code");
+            throw new ResourceNotFound("Email OTP has expired, Please request for another verification email code");
         }
 
         if(otp.getCode().equals(code)){

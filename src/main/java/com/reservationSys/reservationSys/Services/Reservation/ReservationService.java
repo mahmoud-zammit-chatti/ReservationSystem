@@ -21,7 +21,7 @@ import com.reservationSys.reservationSys.Services.OTP.TwilioService;
 import com.reservationSys.reservationSys.Services.auth.EmailService;
 import com.reservationSys.reservationSys.Exceptions.CarExceptions.CarNotVerifiedException;
 import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.NotAuthorizedException;
-import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.RessourceNotFound;
+import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.ResourceNotFound;
 import com.reservationSys.reservationSys.Exceptions.PortExceptions.PortNotAvailableException;
 import com.reservationSys.reservationSys.Exceptions.ReservationExceptions.ReservationCancellationException;
 import com.reservationSys.reservationSys.Exceptions.ReservationExceptions.ReservationConfirmationException;
@@ -70,8 +70,8 @@ public class ReservationService {
     @Transactional
     public ReservationResponseDTO addReservation(ReservationAddRequestDTO requestDTO, AppUser user) {
 
-        Port port = portRepo.findById(requestDTO.getPortId()).orElseThrow(() -> new RessourceNotFound("Port not found"));
-        Car car = carRepo.findById(requestDTO.getCarId()).orElseThrow(() -> new RessourceNotFound("Car not found"));
+        Port port = portRepo.findById(requestDTO.getPortId()).orElseThrow(() -> new ResourceNotFound("Port not found"));
+        Car car = carRepo.findById(requestDTO.getCarId()).orElseThrow(() -> new ResourceNotFound("Car not found"));
 
         if(!car.getUserId().equals(user.getId())){
             throw new NotAuthorizedException("You don't own this resource!!");
@@ -139,7 +139,7 @@ public class ReservationService {
     @Transactional
     public ReservationResponseDTO confirmReservation(UUID reservationId, ReservationConfirmationDTO requestDTO, AppUser user) {
 
-        Reservation reservation = reservationRepo.findByIdAndUserId(reservationId,user.getId()).orElseThrow(() -> new RessourceNotFound("Reservation not found"));
+        Reservation reservation = reservationRepo.findByIdAndUserId(reservationId,user.getId()).orElseThrow(() -> new ResourceNotFound("Reservation not found"));
 
 
         boolean isConfirmed=otpService.verifyOtp(reservationId, requestDTO.getCode(), OtpPurpose.RESERVATION_CONFIRMATION);
@@ -173,7 +173,7 @@ public class ReservationService {
 
     @Transactional
     public void resendConfirmationRequest(UUID reservationId, AppUser user) {
-        Reservation reservation = reservationRepo.findByIdAndUserId(reservationId,user.getId()).orElseThrow(() -> new RessourceNotFound("Reservation not found"));
+        Reservation reservation = reservationRepo.findByIdAndUserId(reservationId,user.getId()).orElseThrow(() -> new ResourceNotFound("Reservation not found"));
 
 
 
@@ -212,7 +212,7 @@ public class ReservationService {
 
     @Transactional
     public ReservationResponseDTO getReservation(UUID resId,AppUser appUser){
-        Reservation reservation = reservationRepo.findByIdAndUserId(resId,appUser.getId()).orElseThrow(() -> new RessourceNotFound("Reservation not found"));
+        Reservation reservation = reservationRepo.findByIdAndUserId(resId,appUser.getId()).orElseThrow(() -> new ResourceNotFound("Reservation not found"));
 
 
 
@@ -284,7 +284,7 @@ public class ReservationService {
 
     public void cancelReservation(UUID reservationId, UUID userId,CancellationReason reason) {
 
-        Reservation reservation = reservationRepo.findByIdAndUserId(reservationId,userId).orElseThrow(() -> new RessourceNotFound("Reservation not found"));
+        Reservation reservation = reservationRepo.findByIdAndUserId(reservationId,userId).orElseThrow(() -> new ResourceNotFound("Reservation not found"));
 
         if(reservation.getReservationStatus()==ReservationStatus.CANCELLED){
             throw new ReservationCancellationException("This reservation is already cancelled :(");

@@ -14,7 +14,7 @@ import com.reservationSys.reservationSys.Repositories.RefreshTokenRepo;
 import com.reservationSys.reservationSys.Services.OTP.OtpService;
 import com.reservationSys.reservationSys.Services.OTP.TwilioService;
 import com.reservationSys.reservationSys.Exceptions.AuthExceptions.*;
-import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.RessourceNotFound;
+import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.ResourceNotFound;
 import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.TooManyRequestsException;
 import com.twilio.exception.ApiException;
 import jakarta.validation.Valid;
@@ -153,7 +153,7 @@ public class AuthService {
     @Transactional
     public String logout(String token) {
         RefreshToken refreshToken = refreshTokenRepo.findByToken(token)
-                .orElseThrow(() -> new RessourceNotFound("Refresh token not found"));
+                .orElseThrow(() -> new ResourceNotFound("Refresh token not found"));
         refreshToken.setIsRevoked(true);
         refreshTokenRepo.save(refreshToken);
         return "Logged out successfully";
@@ -164,7 +164,7 @@ public class AuthService {
         // rotateRefreshToken already validates, no need to call validateRefreshToken separately
         RefreshToken newRefreshToken = refreshTokenService.rotateRefreshToken(token);
         AppUser user = appUserRepo.findById(newRefreshToken.getUserId())
-                .orElseThrow(() -> new RessourceNotFound("User not found"));
+                .orElseThrow(() -> new ResourceNotFound("User not found"));
         String jwtToken = jwtService.generateToken(
                 Map.of("role", user.getUserRole().name()),
                 user.getEmail()
@@ -178,7 +178,7 @@ public class AuthService {
 
     @Transactional
     public void verifyEmail(String email, String code) {
-        AppUser user = appUserRepo.findByEmail(email).orElseThrow(() -> new RessourceNotFound("If this email exists, a verification code has been sent"));
+        AppUser user = appUserRepo.findByEmail(email).orElseThrow(() -> new ResourceNotFound("If this email exists, a verification code has been sent"));
         if (user.getEmailVerifiedAt() != null) {
             throw new IncorrectCredentials("Email already verified ");
         }

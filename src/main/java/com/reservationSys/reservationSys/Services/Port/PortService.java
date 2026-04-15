@@ -14,7 +14,7 @@ import com.reservationSys.reservationSys.Models.station.Station;
 import com.reservationSys.reservationSys.Repositories.PortRepo;
 import com.reservationSys.reservationSys.Repositories.ReservationRepo;
 import com.reservationSys.reservationSys.Repositories.StationRepo;
-import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.RessourceNotFound;
+import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.ResourceNotFound;
 import com.reservationSys.reservationSys.Exceptions.PortExceptions.PortCantBeDeletedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -62,7 +62,7 @@ public class PortService {
     @Transactional
     public PortResponseDTO addPort(PortAddRequestDTO request, UUID stationId) {
 
-        Station station = stationRepo.findById(stationId).orElseThrow(() -> new RessourceNotFound("station with this id not found"));
+        Station station = stationRepo.findById(stationId).orElseThrow(() -> new ResourceNotFound("station with this id not found"));
 
         Port port = Port.builder()
                 .name(request.getPortName())
@@ -105,7 +105,7 @@ public class PortService {
 
     @Transactional
     public PortResponseDTO updatePort(PortUpdateRequestDTO request, UUID stationId, UUID portId) {
-        Port port = portRepo.findByIdAndStation_StationId(portId, stationId).orElseThrow(() -> new RessourceNotFound("can't find the requested port"));
+        Port port = portRepo.findByIdAndStation_StationId(portId, stationId).orElseThrow(() -> new ResourceNotFound("can't find the requested port"));
 
         port.setName(request.getNewName());
         portRepo.save(port);
@@ -134,7 +134,7 @@ public class PortService {
             throw new PortCantBeDeletedException("this port have one or more active reservation, it has been marked to be deleted as soon as no reservation is active on it and it can't accept any more reservation");
         } else {
 
-            Port port = portRepo.deleteByIdAndStation_StationId(portId, stationId).orElseThrow(() -> new RessourceNotFound("can't find the requested port"));
+            Port port = portRepo.deleteByIdAndStation_StationId(portId, stationId).orElseThrow(() -> new ResourceNotFound("can't find the requested port"));
 
             return PortResponseDTO.builder()
                     .portName(port.getName())
@@ -162,7 +162,7 @@ public class PortService {
     public List<TimeSlotsDTO> getAvailableTimeSlots(UUID stationId, UUID portId, LocalDate date, Duration duration) {
 
 
-        Port port = portRepo.findByIdAndStation_StationId(portId, stationId).orElseThrow(() -> new RessourceNotFound("can't find the requested port"));
+        Port port = portRepo.findByIdAndStation_StationId(portId, stationId).orElseThrow(() -> new ResourceNotFound("can't find the requested port"));
 
         Instant dayStart = date.atStartOfDay(businessZoneId).toInstant();
 

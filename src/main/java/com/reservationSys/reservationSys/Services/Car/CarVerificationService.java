@@ -4,7 +4,7 @@ import com.azure.ai.documentintelligence.models.AnalyzeResult;
 import com.reservationSys.reservationSys.Cloud.AzureOcrService;
 import com.reservationSys.reservationSys.Models.car.Car;
 import com.reservationSys.reservationSys.Repositories.CarRepo;
-import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.RessourceNotFound;
+import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.ResourceNotFound;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -30,7 +30,7 @@ public class CarVerificationService {
 
     @Async
     public void verifyCar(UUID carId) {
-        Car carToVerify = carRepo.findById(carId).orElseThrow(()-> new RessourceNotFound("Car with id "+carId+" not found"));
+        Car carToVerify = carRepo.findById(carId).orElseThrow(()-> new ResourceNotFound("Car with id "+carId+" not found"));
 
         AnalyzeResult result = azureOcrService.getAnalyzeResult(carToVerify.getCarteGriseUrl());
 

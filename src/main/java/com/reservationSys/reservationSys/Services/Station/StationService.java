@@ -8,7 +8,7 @@ import com.reservationSys.reservationSys.Models.station.Station;
 import com.reservationSys.reservationSys.Repositories.PortRepo;
 import com.reservationSys.reservationSys.Repositories.StationRepo;
 import com.reservationSys.reservationSys.Repositories.StationWithDistanceProjection;
-import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.RessourceNotFound;
+import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.ResourceNotFound;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,7 +57,7 @@ public class StationService {
 
     @Transactional
     public StationResponseDTO getStation(UUID id) {
-        Station station = stationRepo.findById(id).orElseThrow(()-> new RessourceNotFound("station with this this not found"));
+        Station station = stationRepo.findById(id).orElseThrow(()-> new ResourceNotFound("station with this this not found"));
 
         return StationResponseDTO.builder()
                 .stationId(station.getStationId())
@@ -72,7 +72,7 @@ public class StationService {
 
     @Transactional
     public StationResponseDTO deleteStation(UUID id) {
-        Station deleted = stationRepo.deleteByStationId(id).orElseThrow(()-> new RessourceNotFound("station with this this not found"));
+        Station deleted = stationRepo.deleteByStationId(id).orElseThrow(()-> new ResourceNotFound("station with this this not found"));
 
         return StationResponseDTO.builder()
                 .stationId(deleted.getStationId())

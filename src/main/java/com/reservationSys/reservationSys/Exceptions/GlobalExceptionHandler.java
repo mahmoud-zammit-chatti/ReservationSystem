@@ -5,7 +5,7 @@ package com.reservationSys.reservationSys.Exceptions;
 import com.reservationSys.reservationSys.Exceptions.AuthExceptions.*;
 import com.reservationSys.reservationSys.Exceptions.CarExceptions.*;
 import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.NotAuthorizedException;
-import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.RessourceNotFound;
+import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.ResourceNotFound;
 import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.TooManyRequestsException;
 import com.reservationSys.reservationSys.Exceptions.PortExceptions.PortCantBeDeletedException;
 import com.reservationSys.reservationSys.Exceptions.PortExceptions.PortNotAvailableException;
@@ -59,8 +59,8 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(RessourceNotFound.class)
-    public ResponseEntity<ApiError> handleRessourceNotFoundException(RessourceNotFound ex) {
+    @ExceptionHandler(ResourceNotFound.class)
+    public ResponseEntity<ApiError> handleRessourceNotFoundException(ResourceNotFound ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND.value()).body(
                 new ApiError(
                         Instant.now(),
