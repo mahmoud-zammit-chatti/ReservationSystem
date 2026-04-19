@@ -92,7 +92,7 @@ public class ReservationServiceTest {
         ArgumentCaptor<Reservation> reservationCaptor = ArgumentCaptor.forClass(Reservation.class);
 
 
-        Instant instant = requestDTO.getStartDate().atTime(requestDTO.getStartTimeHour(), 0).atZone(ZoneId.systemDefault()).toInstant();
+        Instant instant = requestDTO.getStartDate().atTime(requestDTO.getStartTimeHour(), 0).atZone(ZoneId.of("Africa/Tunis")).toInstant();
         when(portRepo.findById(port.getId())).thenReturn(Optional.of(port));
         when(carRepo.findById(car.getId())).thenReturn(Optional.of(car));
 
