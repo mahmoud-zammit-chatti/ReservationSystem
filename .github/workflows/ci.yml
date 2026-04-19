@@ -1,0 +1,21 @@
+
+name: CI Pipeline
+
+on:
+  push:
+    branches: [master]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: getting the source code
+        uses: actions/checkout@v4
+      - name: getting jdk
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: maven
+      - name: running mvn
+        run: ./mvnw test

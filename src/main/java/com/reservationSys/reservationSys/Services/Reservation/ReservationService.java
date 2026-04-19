@@ -47,7 +47,6 @@ public class ReservationService {
     private final CarRepo carRepo;
     private final OtpService otpService;
     private final TwilioService twilioService;
-    private final EmailService emailService;
 
     private final ZoneId buisnessZoneId;
     private final Clock buidnessClock;
@@ -55,25 +54,26 @@ public class ReservationService {
     private final List<ReservationStatus> ACTIVESTATUS = List.of(ReservationStatus.CONFIRMED, ReservationStatus.CHECKED_IN, ReservationStatus.PENDING_OTP);
 
 
-    public ReservationService(ReservationRepo reservationRepo, PortRepo portRepo, CarRepo carRepo, OtpService otpService, TwilioService twilioService, EmailService emailService, ZoneId buisnessZoneId, Clock buidnessClock) {
+    public ReservationService(ReservationRepo reservationRepo, PortRepo portRepo, CarRepo carRepo, OtpService otpService, TwilioService twilioService, ZoneId buisnessZoneId, Clock buidnessClock) {
         this.reservationRepo = reservationRepo;
         this.portRepo = portRepo;
         this.carRepo = carRepo;
         this.otpService = otpService;
         this.twilioService = twilioService;
-        this.emailService = emailService;
         this.buisnessZoneId = buisnessZoneId;
         this.buidnessClock = buidnessClock;
+
     }
 
 
+
     @Transactional
-    public ReservationResponseDTO addReservation(ReservationAddRequestDTO requestDTO, AppUser user) {
+    public ReservationResponseDTO addReservation(ReservationAddRequestDTO requestDTO, UUID userId) {
 
         Port port = portRepo.findById(requestDTO.getPortId()).orElseThrow(() -> new ResourceNotFound("Port not found"));
         Car car = carRepo.findById(requestDTO.getCarId()).orElseThrow(() -> new ResourceNotFound("Car not found"));
 
-        if(!car.getUserId().equals(user.getId())){
+        if(!car.getUserId().equals(userId)){
             throw new NotAuthorizedException("You don't own this resource!!");
         }
 
@@ -107,14 +107,14 @@ public class ReservationService {
                 .contactNumber(requestDTO.getContactNumber())
                 .lateCancel(false)
                 .penaltyWaived(false)
-                .userId(user.getId())
+                .userId(userId)
                 .build();
 
         reservationRepo.save(newReservation);
 
 
         //confirmation code with SMS
-        String otpCode= otpService.generateOtpForReservation(newReservation.getId(), user.getId(), OtpPurpose.RESERVATION_CONFIRMATION);
+        String otpCode= otpService.generateOtpForReservation(newReservation.getId(), userId, OtpPurpose.RESERVATION_CONFIRMATION);
         twilioService.sendSms("+216"+requestDTO.getContactNumber(), otpCode);
 
         //there is the option to send with email ;
@@ -137,14 +137,17 @@ public class ReservationService {
     }
 
     @Transactional
-    public ReservationResponseDTO confirmReservation(UUID reservationId, ReservationConfirmationDTO requestDTO, AppUser user) {
+    public ReservationResponseDTO confirmReservation(UUID reservationId, ReservationConfirmationDTO requestDTO, UUID userId) {
 
-        Reservation reservation = reservationRepo.findByIdAndUserId(reservationId,user.getId()).orElseThrow(() -> new ResourceNotFound("Reservation not found"));
+        Reservation reservation = reservationRepo.findByIdAndUserId(reservationId,userId).orElseThrow(() -> new ResourceNotFound("Reservation not found"));
 
+        if(reservation.getReservationStatus().equals(ReservationStatus.CONFIRMED)){
+            throw new ReservationConfirmationException("Reservation is already confirmed :)");
+        }
 
-        boolean isConfirmed=otpService.verifyOtp(reservationId, requestDTO.getCode(), OtpPurpose.RESERVATION_CONFIRMATION);
+        boolean verifiedOtp=otpService.verifyOtp(reservationId, requestDTO.getCode(), OtpPurpose.RESERVATION_CONFIRMATION);
 
-        if(isConfirmed){
+        if(verifiedOtp){
             reservation.setReservationStatus(ReservationStatus.CONFIRMED);
             reservationRepo.save(reservation);
             return ReservationResponseDTO.builder()
@@ -172,24 +175,24 @@ public class ReservationService {
     }
 
     @Transactional
-    public void resendConfirmationRequest(UUID reservationId, AppUser user) {
-        Reservation reservation = reservationRepo.findByIdAndUserId(reservationId,user.getId()).orElseThrow(() -> new ResourceNotFound("Reservation not found"));
+    public void resendConfirmationRequest(UUID reservationId, UUID userId) {
+        Reservation reservation = reservationRepo.findByIdAndUserId(reservationId,userId).orElseThrow(() -> new ResourceNotFound("Reservation not found"));
 
 
 
-        if(reservation.getReservationStatus()!=ReservationStatus.PENDING_OTP){
+        if(!reservation.getReservationStatus().equals(ReservationStatus.PENDING_OTP)){
             throw new ReservationConfirmationException("This reservation is not pending confirmation, you can't resend a confirmation request for it");
         }
-        String code = otpService.generateOtpForReservation(reservation.getId(), user.getId(), OtpPurpose.RESERVATION_CONFIRMATION);
+        String code = otpService.generateOtpForReservation(reservation.getId(), userId, OtpPurpose.RESERVATION_CONFIRMATION);
         twilioService.sendSms("+216"+reservation.getContactNumber(), "A new OTP code was generated for your reservation, please check the code and confirm your reservation :) \nCODE: "+code);
 
 
     }
 
     @Transactional
-    public List<ReservationResponseDTO> getAllReservations(AppUser appUser) {
+    public List<ReservationResponseDTO> getAllReservations(UUID userId) {
 
-        List<Reservation> reservationList = reservationRepo.findAllByUserId(appUser.getId());
+        List<Reservation> reservationList = reservationRepo.findAllByUserId(userId);
         List<ReservationResponseDTO> responseDTOS=new ArrayList<>();
 
         reservationList.forEach( (reservation)-> responseDTOS.add(
@@ -211,8 +214,8 @@ public class ReservationService {
     }
 
     @Transactional
-    public ReservationResponseDTO getReservation(UUID resId,AppUser appUser){
-        Reservation reservation = reservationRepo.findByIdAndUserId(resId,appUser.getId()).orElseThrow(() -> new ResourceNotFound("Reservation not found"));
+    public ReservationResponseDTO getReservation(UUID resId,UUID userId){
+        Reservation reservation = reservationRepo.findByIdAndUserId(resId,userId).orElseThrow(() -> new ResourceNotFound("Reservation not found"));
 
 
 
@@ -232,8 +235,8 @@ public class ReservationService {
     }
 
     @Transactional
-    public List<ReservationResponseDTO> getAllReservationsByStatus(AppUser appUser,ReservationStatus status) {
-        List<Reservation> reservationList = reservationRepo.findAllByUserIdAndReservationStatusEquals(appUser.getId(),status);
+    public List<ReservationResponseDTO> getAllReservationsByStatus(UUID userId,ReservationStatus status) {
+        List<Reservation> reservationList = reservationRepo.findAllByUserIdAndReservationStatusEquals(userId,status);
         List<ReservationResponseDTO> responseDTOS=new ArrayList<>();
 
         reservationList.forEach( (reservation)-> responseDTOS.add(
@@ -258,9 +261,9 @@ public class ReservationService {
     }
 
     @Transactional
-    public List<ReservationResponseDTO> getAllReservationsByCarId(AppUser appUser, UUID carId) {
+    public List<ReservationResponseDTO> getAllReservationsByCarId(UUID userId, UUID carId) {
 
-        List<Reservation> reservationList = reservationRepo.findAllByUserIdAndCarId(appUser.getId(),carId);
+        List<Reservation> reservationList = reservationRepo.findAllByUserIdAndCarId(userId,carId);
         List<ReservationResponseDTO> responseDTOS=new ArrayList<>();
 
         reservationList.forEach( (reservation)-> responseDTOS.add(

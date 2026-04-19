@@ -33,21 +33,21 @@ public class ReservationController {
     @SecurityRequirement(name = "Bearer Authentication")
     public ResponseEntity<ReservationResponseDTO> addReservation(@Valid @ModelAttribute ReservationAddRequestDTO requestDTO, @AuthenticationPrincipal MyAppUserDetails userDetails) {
         AppUser user = userDetails.getAppUser();
-        return ResponseEntity.ok(reservationService.addReservation(requestDTO, user));
+        return ResponseEntity.ok(reservationService.addReservation(requestDTO, user.getId()));
     }
 
     @PutMapping("/confirmation/{reservationId}")
     @SecurityRequirement(name = "Bearer Authentication")
     public ResponseEntity<ReservationResponseDTO> confirmReservation(@PathVariable UUID reservationId, @AuthenticationPrincipal MyAppUserDetails userDetails,@Valid @ModelAttribute ReservationConfirmationDTO requestDTO) {
         AppUser user = userDetails.getAppUser();
-        return ResponseEntity.ok(reservationService.confirmReservation(reservationId, requestDTO, user));
+        return ResponseEntity.ok(reservationService.confirmReservation(reservationId, requestDTO, user.getId()));
     }
 
     @PostMapping("/resend-confirmation-request/{reservationId}")
     @SecurityRequirement(name = "Bearer Authentication")
     public ResponseEntity<String> resendConfirmationRequest(@PathVariable UUID reservationId, @AuthenticationPrincipal MyAppUserDetails userDetails) {
         AppUser user = userDetails.getAppUser();
-        reservationService.resendConfirmationRequest(reservationId, user);
+        reservationService.resendConfirmationRequest(reservationId, user.getId());
         return ResponseEntity.status(200).body("An OTP was sent to the number associated with the reservation :)");
     }
 
@@ -55,13 +55,13 @@ public class ReservationController {
     @SecurityRequirement(name = "Bearer Authentication")
     public ResponseEntity<List<ReservationResponseDTO>> getAllReservationByStatus(@AuthenticationPrincipal MyAppUserDetails userDetails, @PathVariable ReservationStatus status){
         AppUser appUser = userDetails.getAppUser();
-        return ResponseEntity.ok(reservationService.getAllReservationsByStatus(appUser,status));
+        return ResponseEntity.ok(reservationService.getAllReservationsByStatus(appUser.getId(),status));
     }
     @GetMapping("/getAll")
     @SecurityRequirement(name = "Bearer Authentication")
     public ResponseEntity<List<ReservationResponseDTO>> getAllReservationByStatus(@AuthenticationPrincipal MyAppUserDetails userDetails){
         AppUser appUser = userDetails.getAppUser();
-        return ResponseEntity.ok(reservationService.getAllReservations(appUser));
+        return ResponseEntity.ok(reservationService.getAllReservations(appUser.getId()));
     }
 
     @GetMapping("/{reservationId}")
@@ -69,13 +69,13 @@ public class ReservationController {
     public ResponseEntity<ReservationResponseDTO> getReservation(@AuthenticationPrincipal MyAppUserDetails userDetails,@PathVariable UUID reservationId){
         AppUser appUser = userDetails.getAppUser();
 
-        return ResponseEntity.ok(reservationService.getReservation(reservationId,appUser));
+        return ResponseEntity.ok(reservationService.getReservation(reservationId,appUser.getId()));
     }
 
     @GetMapping("/getAll/car/{carId}")
     @SecurityRequirement(name = "Bearer Authentication")
     public ResponseEntity<List<ReservationResponseDTO>> getAllReservationsByCarId(@AuthenticationPrincipal MyAppUserDetails userDetails,@PathVariable UUID carId) {
-        return ResponseEntity.ok(reservationService.getAllReservationsByCarId(userDetails.getAppUser(),carId));
+        return ResponseEntity.ok(reservationService.getAllReservationsByCarId(userDetails.getAppUser().getId(),carId));
     }
 
 

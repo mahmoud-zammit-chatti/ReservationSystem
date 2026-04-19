@@ -46,13 +46,13 @@ AND r.end_time>:startTime
 """,nativeQuery = true)
     List<Reservation> findConflictedReservations(@Param("portId") UUID id, @Param("startTime") Instant candidateStartTime,@Param("endTime") Instant candidateEndTime,@Param("activeStatus") List<String> activestatus);
 
-    List<Reservation> findAllByUserId(UUID id);
+    List<Reservation> findAllByUserId(UUID userId);
 
-    List<Reservation> findAllByUserIdAndReservationStatusEquals(UUID id, ReservationStatus status);
+    List<Reservation> findAllByUserIdAndReservationStatusEquals(UUID userId, ReservationStatus status);
 
-    List<Reservation> findAllByUserIdAndCarId(UUID id, UUID carId);
+    List<Reservation> findAllByUserIdAndCarId(UUID userId, UUID carId);
 
-    Optional<Reservation> findByIdAndUserId(UUID reservationId, UUID id);
+    Optional<Reservation> findByIdAndUserId(UUID reservationId, UUID userId);
 
-    List<Reservation> findAllByCarId(UUID id);
+    List<Reservation> findAllByCarId(UUID carId);
 }
