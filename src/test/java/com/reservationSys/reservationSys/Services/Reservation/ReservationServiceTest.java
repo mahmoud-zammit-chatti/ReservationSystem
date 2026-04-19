@@ -191,7 +191,8 @@ public class ReservationServiceTest {
         ReservationAddRequestDTO requestDTO = createRequestDTO(car.getId(), port.getId());
 
 
-        Instant instant = requestDTO.getStartDate().atTime(requestDTO.getStartTimeHour(), 0).atZone(ZoneId.systemDefault()).toInstant();
+        ZoneId tunisiaId = ZoneId.of("Africa/Tunis");
+        Instant instant = requestDTO.getStartDate().atTime(requestDTO.getStartTimeHour(), 0).atZone(tunisiaId).toInstant();
         when(portRepo.findById(port.getId())).thenReturn(Optional.of(port));
         when(carRepo.findById(car.getId())).thenReturn(Optional.of(car));
 
