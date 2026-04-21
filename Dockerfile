@@ -14,4 +14,4 @@ FROM eclipse-temurin:25-jre-alpine as run
 WORKDIR /app
 COPY --from=build /app/target/*.jar voltBook.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "voltBook.jar"]
+ENTRYPOINT ["java", "-Xmx512m", "-jar", "voltBook.jar"]
