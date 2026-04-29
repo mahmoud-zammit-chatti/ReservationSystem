@@ -1,4 +1,4 @@
-package com.reservationSys.reservationSys.security;
+package com.reservationSys.reservationSys.Security;
 
 
 import com.reservationSys.reservationSys.Exceptions.ApiError;

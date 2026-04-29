@@ -3,7 +3,7 @@ package com.reservationSys.reservationSys.Controllers;
 import com.reservationSys.reservationSys.DTOs.CarDTOs.*;
 import com.reservationSys.reservationSys.Models.user.AppUser;
 import com.reservationSys.reservationSys.Services.Car.CarService;
-import com.reservationSys.reservationSys.security.MyAppUserDetails;
+import com.reservationSys.reservationSys.Security.MyAppUserDetails;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.http.MediaType;

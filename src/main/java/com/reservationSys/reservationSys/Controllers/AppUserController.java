@@ -1,7 +1,7 @@
 package com.reservationSys.reservationSys.Controllers;
 
 
-import com.reservationSys.reservationSys.security.MyAppUserDetails;
+import com.reservationSys.reservationSys.Security.MyAppUserDetails;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

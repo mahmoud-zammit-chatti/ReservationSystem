@@ -8,7 +8,7 @@ import com.reservationSys.reservationSys.Models.reservation.CancellationReason;
 import com.reservationSys.reservationSys.Models.reservation.ReservationStatus;
 import com.reservationSys.reservationSys.Models.user.AppUser;
 import com.reservationSys.reservationSys.Services.Reservation.ReservationService;
-import com.reservationSys.reservationSys.security.MyAppUserDetails;
+import com.reservationSys.reservationSys.Security.MyAppUserDetails;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;

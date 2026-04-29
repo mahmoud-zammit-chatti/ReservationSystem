@@ -1,33 +1,36 @@
 package com.reservationSys.reservationSys.Services.auth;
 
 
-import com.reservationSys.reservationSys.DTOs.AuthDTOs.*;
+import com.reservationSys.reservationSys.DTOs.AuthDTOs.EmailVerificationRequestDTO;
+import com.reservationSys.reservationSys.DTOs.AuthDTOs.RegisterUserDTO;
+import com.reservationSys.reservationSys.DTOs.AuthDTOs.UserRegistrationResponseDTO;
+import com.reservationSys.reservationSys.Exceptions.AuthExceptions.*;
+import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.ResourceNotFound;
+import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.TooManyRequestsException;
 import com.reservationSys.reservationSys.Models.otp.OTP;
 import com.reservationSys.reservationSys.Models.otp.OtpPurpose;
 import com.reservationSys.reservationSys.Models.user.AppUser;
-import com.reservationSys.reservationSys.Models.user.RefreshToken;
 import com.reservationSys.reservationSys.Models.user.UserRole;
 import com.reservationSys.reservationSys.Models.user.UserStatus;
 import com.reservationSys.reservationSys.Repositories.AppUserRepo;
 import com.reservationSys.reservationSys.Repositories.OtpRepo;
-import com.reservationSys.reservationSys.Repositories.RefreshTokenRepo;
 import com.reservationSys.reservationSys.Services.OTP.OtpService;
 import com.reservationSys.reservationSys.Services.OTP.TwilioService;
-import com.reservationSys.reservationSys.Exceptions.AuthExceptions.*;
-import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.ResourceNotFound;
-import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.TooManyRequestsException;
 import com.twilio.exception.ApiException;
 import jakarta.validation.Valid;
+import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.UserRepresentation;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.util.Map;
+import java.util.Collections;
 import java.util.Optional;
 
 import static com.reservationSys.reservationSys.Models.otp.OtpPurpose.ACCOUNT_PHONE_VERIFICATION;
@@ -36,32 +39,29 @@ import static com.reservationSys.reservationSys.Models.otp.OtpPurpose.EMAIL_VERI
 @Slf4j
 @Service
 public class AuthService {
-    private final JwtService jwtService;
+
     private final AppUserRepo appUserRepo;
-    private final PasswordEncoder bCryptPasswordEncoder;
-    private final RefreshTokenService refreshTokenService;
-    private final RefreshTokenRepo refreshTokenRepo;
+
+
     private final OtpService otpService;
     private final TwilioService twilioService;
     private final EmailService emailService;
     private final OtpRepo otpRepo;
+    private final Keycloak keycloak;
 
 
-    private final ZoneId buisnesZoneId;
     private final Clock buisnesClock;
 
-    public AuthService(JwtService jwtService, AppUserRepo appUserRepo, PasswordEncoder bCryptPasswordEncoder, RefreshTokenService refreshTokenService, RefreshTokenRepo refreshTokenRepo, OtpService otpService, TwilioService twilioService, EmailService emailService, OtpRepo otpRepo, ZoneId buisnesZoneId, Clock buisnesClock) {
-        this.jwtService = jwtService;
-        this.appUserRepo = appUserRepo;
+    @Value("${KEYCLOAK_REALM}")
+    String realm;
 
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-        this.refreshTokenService = refreshTokenService;
-        this.refreshTokenRepo = refreshTokenRepo;
+    public AuthService(AppUserRepo appUserRepo, OtpService otpService, TwilioService twilioService, EmailService emailService, OtpRepo otpRepo, Keycloak keycloak, Clock buisnesClock) {
+        this.appUserRepo = appUserRepo;
         this.otpService = otpService;
         this.twilioService = twilioService;
         this.emailService = emailService;
         this.otpRepo = otpRepo;
-        this.buisnesZoneId = buisnesZoneId;
+        this.keycloak = keycloak;
         this.buisnesClock = buisnesClock;
     }
 
@@ -71,12 +71,12 @@ public class AuthService {
             throw new UserAlreadyExists("User with email: " + registerUserDTO.getEmail() + " already exists");
 
         }
-        String hash = bCryptPasswordEncoder.encode(registerUserDTO.getPassword());
+//        String hash = bCryptPasswordEncoder.encode(registerUserDTO.getPassword());
         AppUser user = AppUser.builder()
                 .fullName(registerUserDTO.getFullName())
                 .email(registerUserDTO.getEmail())
                 .phoneNumber("+216" + registerUserDTO.getPhoneNumber())//adding the ability to choose country code in the future
-                .passwordHash(hash)
+//                .passwordHash(hash)
                 .status(UserStatus.INACTIVE)
                 .userRole(UserRole.USER)
                 .emailVerifiedAt(null)
@@ -125,7 +125,82 @@ public class AuthService {
 
         return responseDTO;
     }
+    @Transactional
+    public void verifyEmail(String email, String code) {
+        AppUser user = appUserRepo.findByEmail(email).orElseThrow(() -> new ResourceNotFound("If this email exists, a verification code has been sent"));
+        if (user.getEmailVerifiedAt() != null) {
+            throw new IncorrectCredentials("Email already verified ");
+        }
+        if (twilioService.verifyEmailCode(user.getId(), code)) {
+            user.setEmailVerifiedAt(Instant.now(buisnesClock));
+            appUserRepo.save(user);
+        } else {
+            throw new IncorrectCredentials("Invalid verification code for email: " + email);
+        }
+    }
 
+    @Transactional
+    public void verifyPhoneNumber(AppUser user, String code) {
+        String phoneNumber = user.getPhoneNumber();
+        if (user.getPhoneNumberVerifiedAt() != null) {
+            throw new IncorrectCredentials("Phone number already verified ");
+        }
+        if (otpService.verifyOtp(user.getId(), code, ACCOUNT_PHONE_VERIFICATION)) {
+            user.setPhoneNumberVerifiedAt(Instant.now(buisnesClock));
+            user.setStatus(UserStatus.ACTIVE);
+            appUserRepo.save(user);
+        } else {
+            throw new IncorrectCredentials("Invalid verification code for phone number: " + phoneNumber);
+        }
+    }
+
+
+
+
+    public void resendEmailVerification(@Valid EmailVerificationRequestDTO request) {
+        Optional<AppUser> appUserOpt = appUserRepo.findByEmail(request.getEmail());
+        if (appUserOpt.isEmpty()) {
+            return; // to prevent email enumeration attacks, we return a success response even if the email doesn't exist in the database, but we don't send an email in this case
+        }
+        AppUser appUser = appUserOpt.get();
+        if (appUser.getEmailVerifiedAt() != null) {
+            throw new EmailAleadyVerifed("Email already verified for user with email: " + request.getEmail());
+        }
+        Optional<OTP> emailOtpOpt = otpRepo.findTopByUserIdAndPurposeOrderByCreatedAtDesc(appUser.getId(), EMAIL_VERIFICATION);
+
+        if (emailOtpOpt.isPresent() && emailOtpOpt.get().getCreatedAt().plusSeconds(120).isAfter(Instant.now(buisnesClock))) {
+            throw new TooManyRequestsException("Please wait before requesting another verification code for email: " + request.getEmail());
+        } else {
+            String code = otpService.generateOtpForUser(appUser.getId(), EMAIL_VERIFICATION);
+            try {
+                emailService.sendVerificationEmail(appUser.getEmail(), code,"Email verification for E-Car reservation system");
+            } catch (MailException e) {
+                log.warn("Email Resend failed for user {}: {}", appUser.getId(), e.getMessage());
+                throw new EmailDeliveryException("Failed to resend verification email for email: " + request.getEmail());
+            }
+
+        }
+    }
+
+
+    public void resendPhoneVerification(AppUser appUser) {
+        if (appUser.getPhoneNumberVerifiedAt() != null) {
+            throw new PhoneNumberAlreadyVerified("Phone number already verified for user with email: " + appUser.getEmail());
+        }
+        Optional<OTP> phoneOtpOpt = otpRepo.findTopByUserIdAndPurposeOrderByCreatedAtDesc(appUser.getId(), ACCOUNT_PHONE_VERIFICATION);
+        if (phoneOtpOpt.isPresent() && phoneOtpOpt.get().getCreatedAt().plusSeconds(120).isAfter(Instant.now(buisnesClock))) {
+            throw new TooManyRequestsException("Please wait before requesting another verification code for phone number: " + appUser.getPhoneNumber());
+        } else {
+            String code = otpService.generateOtpForUser(appUser.getId(), OtpPurpose.ACCOUNT_PHONE_VERIFICATION);
+            try {
+                twilioService.sendSms(appUser.getPhoneNumber(), code);
+            } catch (ApiException e) {
+                log.warn("SMS Resend failed for user {}: {}", appUser.getId(), e.getMessage());
+                throw new SmsDeliveryException("Failed to resend verification SMS for phone number: " + appUser.getPhoneNumber());
+            }
+        }
+    }
+/*
     @Transactional
     public AuthResponseDTO login(LoginUserDTO user) {
 
@@ -175,78 +250,36 @@ public class AuthService {
                 .accessToken(jwtToken)
                 .build();
     }
-
-    @Transactional
-    public void verifyEmail(String email, String code) {
-        AppUser user = appUserRepo.findByEmail(email).orElseThrow(() -> new ResourceNotFound("If this email exists, a verification code has been sent"));
-        if (user.getEmailVerifiedAt() != null) {
-            throw new IncorrectCredentials("Email already verified ");
-        }
-        if (twilioService.verifyEmailCode(user.getId(), code)) {
-            user.setEmailVerifiedAt(Instant.now(buisnesClock));
-            appUserRepo.save(user);
-        } else {
-            throw new IncorrectCredentials("Invalid verification code for email: " + email);
-        }
-    }
-
-    @Transactional
-    public void verifyPhoneNumber(AppUser user, String code) {
-        String phoneNumber = user.getPhoneNumber();
-        if (user.getPhoneNumberVerifiedAt() != null) {
-            throw new IncorrectCredentials("Phone number already verified ");
-        }
-        if (otpService.verifyOtp(user.getId(), code, ACCOUNT_PHONE_VERIFICATION)) {
-            user.setPhoneNumberVerifiedAt(Instant.now(buisnesClock));
-            user.setStatus(UserStatus.ACTIVE);
-            appUserRepo.save(user);
-        } else {
-            throw new IncorrectCredentials("Invalid verification code for phone number: " + phoneNumber);
-        }
-    }
-
-    public void resendEmailVerification(@Valid EmailVerificationRequestDTO request) {
-        Optional<AppUser> appUserOpt = appUserRepo.findByEmail(request.getEmail());
-        if (appUserOpt.isEmpty()) {
-            return; // to prevent email enumeration attacks, we return a success response even if the email doesn't exist in the database, but we don't send an email in this case
-        }
-        AppUser appUser = appUserOpt.get();
-        if (appUser.getEmailVerifiedAt() != null) {
-            throw new EmailAleadyVerifed("Email already verified for user with email: " + request.getEmail());
-        }
-        Optional<OTP> emailOtpOpt = otpRepo.findTopByUserIdAndPurposeOrderByCreatedAtDesc(appUser.getId(), EMAIL_VERIFICATION);
-
-        if (emailOtpOpt.isPresent() && emailOtpOpt.get().getCreatedAt().plusSeconds(120).isAfter(Instant.now(buisnesClock))) {
-            throw new TooManyRequestsException("Please wait before requesting another verification code for email: " + request.getEmail());
-        } else {
-            String code = otpService.generateOtpForUser(appUser.getId(), EMAIL_VERIFICATION);
-            try {
-                emailService.sendVerificationEmail(appUser.getEmail(), code,"Email verification for E-Car reservation system");
-            } catch (MailException e) {
-                log.warn("Email Resend failed for user {}: {}", appUser.getId(), e.getMessage());
-                throw new EmailDeliveryException("Failed to resend verification email for email: " + request.getEmail());
-            }
-
-        }
-    }
+*/
 
 
-    public void resendPhoneVerification(AppUser appUser) {
-        if (appUser.getPhoneNumberVerifiedAt() != null) {
-            throw new PhoneNumberAlreadyVerified("Phone number already verified for user with email: " + appUser.getEmail());
+
+    private void createAndEnableUserInKeycloak(String email, String fullName, String rawPassword){
+
+
+        //creation of the keycloak user
+        UserRepresentation keycloakUser = new UserRepresentation();
+        keycloakUser.setUsername(email);
+        keycloakUser.setEmail(email);
+        keycloakUser.setFirstName(fullName);
+        keycloakUser.setEnabled(true);
+
+        //creating the passwored
+        CredentialRepresentation creds = new CredentialRepresentation();
+        creds.setTemporary(false);
+        creds.setType(CredentialRepresentation.PASSWORD);
+        creds.setValue(rawPassword);
+        keycloakUser.setCredentials(Collections.singletonList(creds));
+
+        //send the creation to keycloak
+        Response response =  keycloak.realm("voltbook").users().create(keycloakUser);
+
+        if(response.getStatus()==201){
+            String userId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
         }
-        Optional<OTP> phoneOtpOpt = otpRepo.findTopByUserIdAndPurposeOrderByCreatedAtDesc(appUser.getId(), ACCOUNT_PHONE_VERIFICATION);
-        if (phoneOtpOpt.isPresent() && phoneOtpOpt.get().getCreatedAt().plusSeconds(120).isAfter(Instant.now(buisnesClock))) {
-            throw new TooManyRequestsException("Please wait before requesting another verification code for phone number: " + appUser.getPhoneNumber());
-        } else {
-            String code = otpService.generateOtpForUser(appUser.getId(), OtpPurpose.ACCOUNT_PHONE_VERIFICATION);
-            try {
-                twilioService.sendSms(appUser.getPhoneNumber(), code);
-            } catch (ApiException e) {
-                log.warn("SMS Resend failed for user {}: {}", appUser.getId(), e.getMessage());
-                throw new SmsDeliveryException("Failed to resend verification SMS for phone number: " + appUser.getPhoneNumber());
-            }
-        }
+
+
+
     }
 }
 

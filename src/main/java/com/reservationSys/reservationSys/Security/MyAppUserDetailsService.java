@@ -1,4 +1,4 @@
-package com.reservationSys.reservationSys.security;
+package com.reservationSys.reservationSys.Security;
 
 import com.reservationSys.reservationSys.Models.user.AppUser;
 import com.reservationSys.reservationSys.Repositories.AppUserRepo;

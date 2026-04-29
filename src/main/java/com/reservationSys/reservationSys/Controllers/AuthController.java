@@ -3,8 +3,9 @@ package com.reservationSys.reservationSys.Controllers;
 
 import com.reservationSys.reservationSys.DTOs.AuthDTOs.*;
 import com.reservationSys.reservationSys.Models.user.AppUser;
+import com.reservationSys.reservationSys.Repositories.AppUserRepo;
 import com.reservationSys.reservationSys.Services.auth.AuthService;
-import com.reservationSys.reservationSys.security.MyAppUserDetails;
+import com.reservationSys.reservationSys.Security.MyAppUserDetails;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final AppUserRepo appUserRepo;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, AppUserRepo appUserRepo) {
         this.authService = authService;
+        this.appUserRepo = appUserRepo;
     }
 
     @PostMapping("/register")
@@ -29,7 +32,7 @@ public class AuthController {
 
         return ResponseEntity.ok( authService.register(registerUserDTO));
     }
-
+/*
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginUserDTO loginUserDTO){
         return ResponseEntity.ok().body(authService.login(loginUserDTO));
@@ -44,7 +47,7 @@ public class AuthController {
     public ResponseEntity<AuthResponseDTO> refresh(@Valid @RequestBody RefreshTokenRequestDTO request){
         return ResponseEntity.ok().body(authService.refresh(request.getRefreshToken()));
     }
-
+*/
     @PostMapping("/verify-email")
     public ResponseEntity<String> verifyEmail(@Valid @RequestBody EmailVerificationDTO request){
         authService.verifyEmail(request.getEmail(), request.getCode());
@@ -70,6 +73,21 @@ public class AuthController {
 
     public ResponseEntity<String> resendVerificationPhone(@AuthenticationPrincipal MyAppUserDetails user){
         AppUser appUser = user.getAppUser();
+        authService.resendPhoneVerification(appUser);
+        return ResponseEntity.ok("Verification phone resent successfully");
+    }
+
+    @PostMapping("/verify-phone-mock")
+    public ResponseEntity<String> verifyPhone(@Valid @RequestBody PhoneVerificationDTO request){
+
+        AppUser appUser = appUserRepo.findByEmail("mahmoudzammit18@gmail.com").orElseThrow(() -> new RuntimeException("User not found"));
+        authService.verifyPhoneNumber(appUser,request.getCode());
+        return ResponseEntity.ok("Phone verified successfully");
+    }
+
+    @PostMapping("/resend-verification-phone-mock")
+    public ResponseEntity<String> resendVerificationPhone(){
+        AppUser appUser = appUserRepo.findByEmail("mahmoudzammit18@gmail.com").orElseThrow(() -> new RuntimeException("User not found"));
         authService.resendPhoneVerification(appUser);
         return ResponseEntity.ok("Verification phone resent successfully");
     }
