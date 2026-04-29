@@ -22,6 +22,7 @@ import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
@@ -275,8 +276,20 @@ public class AuthService {
         Response response =  keycloak.realm("voltbook").users().create(keycloakUser);
 
         if(response.getStatus()==201){
+
+            //stip the http from keycloak and only leave the UUID of the newly created user
             String userId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
+
+            //fetch the USER role ans assign it to the user
+            RoleRepresentation userRole = keycloak.realm(realm).roles().get("USER").toRepresentation();
+            keycloak.realm(realm).users().get(userId).roles().realmLevel().add(Collections.singletonList(userRole));
+
+            log.info("Successfully created Keycloak user with email: {}", email);
+
+        }else{
+            log.error("Failed to create Keycloak user with status code: {} ", response.getStatus());
         }
+
 
 
 
