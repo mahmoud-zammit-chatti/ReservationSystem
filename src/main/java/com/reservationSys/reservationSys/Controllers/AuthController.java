@@ -86,11 +86,6 @@ public class AuthController {
 
         AppUser user = appUserRepo.findByEmail("mahmoudzammit18@gmail.com").orElseThrow(() -> new RuntimeException("User not found"));
 
-        String codeSms = otpService.generateOtpForUser(
-                user.getId(),
-                ACCOUNT_PHONE_VERIFICATION
-        );
-        twilioService.sendSms(user.getPhoneNumber(), codeSms); //only enable this when testing for the otp code sending otherwise this costs money!!!!!!!
 
 
         authService.verifyPhoneNumber(user,request.getCode());
