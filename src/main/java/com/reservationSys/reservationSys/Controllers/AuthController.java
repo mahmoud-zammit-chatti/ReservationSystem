@@ -10,10 +10,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api/v1/auth")
@@ -89,7 +86,12 @@ public class AuthController {
     public ResponseEntity<String> resendVerificationPhone(){
         AppUser appUser = appUserRepo.findByEmail("mahmoudzammit18@gmail.com").orElseThrow(() -> new RuntimeException("User not found"));
         authService.resendPhoneVerification(appUser);
+
         return ResponseEntity.ok("Verification phone resent successfully");
+    }
+    @GetMapping("rahouma")
+    public ResponseEntity<String> test(){
+        return ResponseEntity.ok("3aslemaaa rahoumaa l katkoutaaa, n7ebek barchaaaa");
     }
 
 
