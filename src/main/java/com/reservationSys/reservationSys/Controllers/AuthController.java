@@ -4,6 +4,8 @@ package com.reservationSys.reservationSys.Controllers;
 import com.reservationSys.reservationSys.DTOs.AuthDTOs.*;
 import com.reservationSys.reservationSys.Models.user.AppUser;
 import com.reservationSys.reservationSys.Repositories.AppUserRepo;
+import com.reservationSys.reservationSys.Services.OTP.OtpService;
+import com.reservationSys.reservationSys.Services.OTP.TwilioService;
 import com.reservationSys.reservationSys.Services.auth.AuthService;
 import com.reservationSys.reservationSys.Security.MyAppUserDetails;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -12,16 +14,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import static com.reservationSys.reservationSys.Models.otp.OtpPurpose.ACCOUNT_PHONE_VERIFICATION;
+
 @RestController
 @RequestMapping("api/v1/auth")
 public class AuthController {
 
     private final AuthService authService;
     private final AppUserRepo appUserRepo;
-
-    public AuthController(AuthService authService, AppUserRepo appUserRepo) {
+    private final OtpService otpService;
+    private final TwilioService twilioService;
+    public AuthController(AuthService authService, AppUserRepo appUserRepo, OtpService otpService, TwilioService twilioService) {
         this.authService = authService;
         this.appUserRepo = appUserRepo;
+        this.otpService = otpService;
+        this.twilioService = twilioService;
     }
 
     @PostMapping("/register")
@@ -77,8 +84,16 @@ public class AuthController {
     @PostMapping("/verify-phone-mock")
     public ResponseEntity<String> verifyPhone(@Valid @RequestBody PhoneVerificationDTO request){
 
-        AppUser appUser = appUserRepo.findByEmail("mahmoudzammit18@gmail.com").orElseThrow(() -> new RuntimeException("User not found"));
-        authService.verifyPhoneNumber(appUser,request.getCode());
+        AppUser user = appUserRepo.findByEmail("mahmoudzammit18@gmail.com").orElseThrow(() -> new RuntimeException("User not found"));
+
+        String codeSms = otpService.generateOtpForUser(
+                user.getId(),
+                ACCOUNT_PHONE_VERIFICATION
+        );
+        twilioService.sendSms(user.getPhoneNumber(), codeSms); //only enable this when testing for the otp code sending otherwise this costs money!!!!!!!
+
+
+        authService.verifyPhoneNumber(user,request.getCode());
         return ResponseEntity.ok("Phone verified successfully");
     }
 
