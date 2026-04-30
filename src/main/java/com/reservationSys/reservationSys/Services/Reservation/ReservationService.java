@@ -17,7 +17,7 @@ import com.reservationSys.reservationSys.Repositories.CarRepo;
 import com.reservationSys.reservationSys.Repositories.PortRepo;
 import com.reservationSys.reservationSys.Repositories.ReservationRepo;
 import com.reservationSys.reservationSys.Services.OTP.OtpService;
-import com.reservationSys.reservationSys.Services.OTP.TwilioService;
+import com.reservationSys.reservationSys.Services.OTP.VonageWhatsappService;
 import com.reservationSys.reservationSys.Services.auth.EmailService;
 import com.reservationSys.reservationSys.Exceptions.CarExceptions.CarNotVerifiedException;
 import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.NotAuthorizedException;
@@ -46,7 +46,7 @@ public class ReservationService {
     private final PortRepo portRepo;
     private final CarRepo carRepo;
     private final OtpService otpService;
-    private final TwilioService twilioService;
+    private final VonageWhatsappService vonageWhatsappService;
 
     private final ZoneId buisnessZoneId;
     private final Clock buidnessClock;
@@ -54,12 +54,12 @@ public class ReservationService {
     private final List<ReservationStatus> ACTIVESTATUS = List.of(ReservationStatus.CONFIRMED, ReservationStatus.CHECKED_IN, ReservationStatus.PENDING_OTP);
 
 
-    public ReservationService(ReservationRepo reservationRepo, PortRepo portRepo, CarRepo carRepo, OtpService otpService, TwilioService twilioService, ZoneId buisnessZoneId, Clock buidnessClock) {
+    public ReservationService(ReservationRepo reservationRepo, PortRepo portRepo, CarRepo carRepo, OtpService otpService, VonageWhatsappService vonageWhatsappService, ZoneId buisnessZoneId, Clock buidnessClock) {
         this.reservationRepo = reservationRepo;
         this.portRepo = portRepo;
         this.carRepo = carRepo;
         this.otpService = otpService;
-        this.twilioService = twilioService;
+        this.vonageWhatsappService = vonageWhatsappService;
         this.buisnessZoneId = buisnessZoneId;
         this.buidnessClock = buidnessClock;
 
@@ -114,8 +114,9 @@ public class ReservationService {
 
 
         //confirmation code with SMS
-        String otpCode= otpService.generateOtpForReservation(newReservation.getId(), userId, OtpPurpose.RESERVATION_CONFIRMATION);
-        twilioService.sendSms("+216"+requestDTO.getContactNumber(), otpCode);
+        String otpCode = otpService.generateOtpForReservation(newReservation.getId(), userId, OtpPurpose.RESERVATION_CONFIRMATION);
+        String otpMessage = "This is your confirmation code from the E-Car Charging Rental System: " + otpCode;
+        vonageWhatsappService.sendWhatsappMessage("+216" + requestDTO.getContactNumber(), otpMessage);
 
         //there is the option to send with email ;
         //emailService.sendVerificationEmail(user.getEmail(), otpCode,"Reservation verification for E-Car reservation system: ");
@@ -184,7 +185,7 @@ public class ReservationService {
             throw new ReservationConfirmationException("This reservation is not pending confirmation, you can't resend a confirmation request for it");
         }
         String code = otpService.generateOtpForReservation(reservation.getId(), userId, OtpPurpose.RESERVATION_CONFIRMATION);
-        twilioService.sendSms("+216"+reservation.getContactNumber(), "A new OTP code was generated for your reservation, please check the code and confirm your reservation :) \nCODE: "+code);
+        vonageWhatsappService.sendWhatsappMessage("+216" + reservation.getContactNumber(), "A new OTP code was generated for your reservation, please check the code and confirm your reservation :) \nCODE: " + code);
 
 
     }

@@ -12,11 +12,11 @@ import com.reservationSys.reservationSys.Repositories.AppUserRepo;
 import com.reservationSys.reservationSys.Repositories.OtpRepo;
 import com.reservationSys.reservationSys.Repositories.RefreshTokenRepo;
 import com.reservationSys.reservationSys.Services.OTP.OtpService;
-import com.reservationSys.reservationSys.Services.OTP.TwilioService;
+import com.reservationSys.reservationSys.Services.OTP.VonageWhatsappService;
 import com.reservationSys.reservationSys.Exceptions.AuthExceptions.*;
 import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.ResourceNotFound;
 import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.TooManyRequestsException;
-import com.twilio.exception.ApiException;
+import org.springframework.web.client.RestClientException;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.MailException;
@@ -42,7 +42,7 @@ public class AuthService {
     private final RefreshTokenService refreshTokenService;
     private final RefreshTokenRepo refreshTokenRepo;
     private final OtpService otpService;
-    private final TwilioService twilioService;
+    private final VonageWhatsappService vonageWhatsappService;
     private final EmailService emailService;
     private final OtpRepo otpRepo;
 
@@ -50,7 +50,7 @@ public class AuthService {
     private final ZoneId buisnesZoneId;
     private final Clock buisnesClock;
 
-    public AuthService(JwtService jwtService, AppUserRepo appUserRepo, PasswordEncoder bCryptPasswordEncoder, RefreshTokenService refreshTokenService, RefreshTokenRepo refreshTokenRepo, OtpService otpService, TwilioService twilioService, EmailService emailService, OtpRepo otpRepo, ZoneId buisnesZoneId, Clock buisnesClock) {
+    public AuthService(JwtService jwtService, AppUserRepo appUserRepo, PasswordEncoder bCryptPasswordEncoder, RefreshTokenService refreshTokenService, RefreshTokenRepo refreshTokenRepo, OtpService otpService, VonageWhatsappService vonageWhatsappService, EmailService emailService, OtpRepo otpRepo, ZoneId buisnesZoneId, Clock buisnesClock) {
         this.jwtService = jwtService;
         this.appUserRepo = appUserRepo;
 
@@ -58,7 +58,7 @@ public class AuthService {
         this.refreshTokenService = refreshTokenService;
         this.refreshTokenRepo = refreshTokenRepo;
         this.otpService = otpService;
-        this.twilioService = twilioService;
+        this.vonageWhatsappService = vonageWhatsappService;
         this.emailService = emailService;
         this.otpRepo = otpRepo;
         this.buisnesZoneId = buisnesZoneId;
@@ -101,10 +101,10 @@ public class AuthService {
 
 
         try {
-           // twilioService.sendSms(user.getPhoneNumber(), codeSms); //only enable this when testing for the otp code sending otherwise this costs money!!!!!!!
+           vonageWhatsappService.sendWhatsappMessage(user.getPhoneNumber(), codeSms); //only enable this when testing for the otp code sending otherwise this costs money!!!!!!!
             responseDTO.setSmsMsg("due to lack of credit in the api the sms sending feature is currently paused, feel free to check the code to see the implementation in authService.java line 104");
             responseDTO.setSmsSent(true);
-        } catch (ApiException e) {
+        } catch (RestClientException e) {
             log.warn("SMS failed for user {}: {}", user.getId(), e.getMessage());
             responseDTO.setSmsMsg("SMS failed for this registration please request another one, But your registration was a success");
             responseDTO.setSmsSent(false);
@@ -182,7 +182,7 @@ public class AuthService {
         if (user.getEmailVerifiedAt() != null) {
             throw new IncorrectCredentials("Email already verified ");
         }
-        if (twilioService.verifyEmailCode(user.getId(), code)) {
+        if (vonageWhatsappService.verifyEmailCode(user.getId(), code)) {
             user.setEmailVerifiedAt(Instant.now(buisnesClock));
             appUserRepo.save(user);
         } else {
@@ -241,12 +241,11 @@ public class AuthService {
         } else {
             String code = otpService.generateOtpForUser(appUser.getId(), OtpPurpose.ACCOUNT_PHONE_VERIFICATION);
             try {
-                twilioService.sendSms(appUser.getPhoneNumber(), code);
-            } catch (ApiException e) {
+                vonageWhatsappService.sendWhatsappMessage(appUser.getPhoneNumber(), code);
+            } catch (RestClientException e) {
                 log.warn("SMS Resend failed for user {}: {}", appUser.getId(), e.getMessage());
                 throw new SmsDeliveryException("Failed to resend verification SMS for phone number: " + appUser.getPhoneNumber());
             }
         }
     }
 }
-

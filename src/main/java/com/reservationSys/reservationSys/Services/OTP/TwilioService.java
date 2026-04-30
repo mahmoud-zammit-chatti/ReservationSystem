@@ -1,79 +1,23 @@
 package com.reservationSys.reservationSys.Services.OTP;
 
 
-import com.reservationSys.reservationSys.Models.otp.OTP;
-import com.reservationSys.reservationSys.Models.otp.OtpPurpose;
-import com.reservationSys.reservationSys.Models.otp.OtpStatus;
-import com.reservationSys.reservationSys.Models.user.AppUser;
-import com.reservationSys.reservationSys.Repositories.AppUserRepo;
-import com.reservationSys.reservationSys.Repositories.OtpRepo;
-import com.reservationSys.reservationSys.Exceptions.GeneralExceptions.ResourceNotFound;
-import com.twilio.Twilio;
-import com.twilio.rest.api.v2010.account.Message;
-import com.twilio.type.PhoneNumber;
-import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-import java.time.Instant;
 import java.util.UUID;
 
 
-@Service
+@Deprecated
 public class TwilioService {
-    @Value("${twilio.account-sid}")
-    private String twilioAccountSid;
+    private final VonageWhatsappService vonageWhatsappService;
 
-    @Value("${twilio.auth-token}")
-    private String twilioAuthToken;
-
-    @Value("${twilio.phone-number}")
-    private String twilioPhoneNumber;
-
-    private final OtpRepo otpRepo;
-        private final AppUserRepo appUserRepo;
-
-    public TwilioService(OtpRepo otpRepo, AppUserRepo appUserRepo) {
-        this.otpRepo = otpRepo;
-        this.appUserRepo = appUserRepo;
+    public TwilioService(VonageWhatsappService vonageWhatsappService) {
+        this.vonageWhatsappService = vonageWhatsappService;
     }
 
-    @PostConstruct
-    public void init(){
-        Twilio.init(twilioAccountSid, twilioAuthToken);
-
+    public void sendSms(String toPhone, String message) {
+        String formattedMessage = "This is your confirmation code from the E-Car Charging Rental System: " + message;
+        vonageWhatsappService.sendWhatsappMessage(toPhone, formattedMessage);
     }
-
-    public void sendSms(String toPhone,String message) {
-            Message.creator(
-                            new PhoneNumber(toPhone),
-                            new PhoneNumber(twilioPhoneNumber),
-                            "This is your confirmation code from the' E-Car Charging Rental System: " + message
-                    )
-                    .create();
-
-    }
-
 
     public boolean verifyEmailCode(UUID userId, String code) {
-        AppUser appUser = appUserRepo.findById(userId).orElseThrow(() -> new ResourceNotFound("User with id: " + userId + " not found"));
-
-        OTP otp = otpRepo.findByUserIdAndPurposeAndStatus(userId, OtpPurpose.EMAIL_VERIFICATION, OtpStatus.PENDING)
-                .orElseThrow(() -> new ResourceNotFound("No pending OTP found for user with email: " + appUser.getEmail()));
-
-        if(otp.getExpiresAt().isBefore(Instant.now())){
-            otp.setStatus(OtpStatus.EXPIRED);
-            otpRepo.save(otp);
-            throw new ResourceNotFound("Email OTP has expired, Please request for another verification email code");
-        }
-
-        if(otp.getCode().equals(code)){
-            otp.setStatus(OtpStatus.VERIFIED);
-            otp.setVerifiedAt(java.time.Instant.now());
-            otpRepo.save(otp);
-            return true;
-        }else{
-            return false;
-        }
+        return vonageWhatsappService.verifyEmailCode(userId, code);
     }
 }

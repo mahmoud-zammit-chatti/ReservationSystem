@@ -22,7 +22,7 @@ import com.reservationSys.reservationSys.Repositories.CarRepo;
 import com.reservationSys.reservationSys.Repositories.PortRepo;
 import com.reservationSys.reservationSys.Repositories.ReservationRepo;
 import com.reservationSys.reservationSys.Services.OTP.OtpService;
-import com.reservationSys.reservationSys.Services.OTP.TwilioService;
+import com.reservationSys.reservationSys.Services.OTP.VonageWhatsappService;
 import com.reservationSys.reservationSys.Services.auth.EmailService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,7 +60,7 @@ public class ReservationServiceTest {
     @Mock
     private OtpService otpService;
     @Mock
-    private TwilioService twilioService;
+    private VonageWhatsappService vonageWhatsappService;
     @Mock
     private EmailService emailService;
 
@@ -74,7 +74,7 @@ public class ReservationServiceTest {
         Instant fixedInstant = Instant.parse("2024-01-01T10:00:00Z");
         Clock fixedClock = Clock.fixed(fixedInstant, ZoneId.systemDefault());
 
-        reservationService = new ReservationService(reservationRepo, portRepo, carRepo, otpService, twilioService, realZoneId, fixedClock);
+        reservationService = new ReservationService(reservationRepo, portRepo, carRepo, otpService, vonageWhatsappService, realZoneId, fixedClock);
     }
 
     //tests for adding new reservations
@@ -110,7 +110,7 @@ public class ReservationServiceTest {
 
 
         verify(otpService, times(1)).generateOtpForReservation(any(), eq(user.getId()), eq(OtpPurpose.RESERVATION_CONFIRMATION));
-        verify(twilioService, times(1)).sendSms(eq("+21612345678"), eq("123456"));
+        verify(vonageWhatsappService, times(1)).sendWhatsappMessage(eq("+21612345678"), eq("This is your confirmation code from the E-Car Charging Rental System: 123456"));
         verify(reservationRepo, times(1)).save(reservationCaptor.capture());
 
         Reservation savedReservation = reservationCaptor.getValue();
@@ -343,7 +343,7 @@ public class ReservationServiceTest {
 
         assertThrows(ReservationConfirmationException.class,()->reservationService.resendConfirmationRequest(reservation.getId(),user.getId()));
         verifyNoInteractions(otpService);
-        verifyNoInteractions(twilioService);
+        verifyNoInteractions(vonageWhatsappService);
         verify(reservationRepo,times(1)).findByIdAndUserId(reservation.getId(),user.getId());
 
     }
@@ -364,7 +364,7 @@ public class ReservationServiceTest {
 
 
         verify(otpService,times(1)).generateOtpForReservation(reservation.getId(),appUser.getId(),OtpPurpose.RESERVATION_CONFIRMATION);
-        verify(twilioService,times(1)).sendSms(eq("+216"+appUser.getPhoneNumber()),
+        verify(vonageWhatsappService, times(1)).sendWhatsappMessage(eq("+216" + appUser.getPhoneNumber()),
                 eq("A new OTP code was generated for your reservation, please check the code and confirm your reservation :) \nCODE: 123456"));
     }
 
@@ -377,7 +377,7 @@ public class ReservationServiceTest {
         assertThrows(ResourceNotFound.class,()->reservationService.resendConfirmationRequest(UUID.randomUUID(),appUser.getId()));
 
         verifyNoInteractions(otpService);
-        verifyNoInteractions(twilioService);
+        verifyNoInteractions(vonageWhatsappService);
         verify(reservationRepo,times(1)).findByIdAndUserId(any(),eq(appUser.getId()));
     }
 
@@ -412,7 +412,7 @@ public class ReservationServiceTest {
 
     private void reservationAdditionStopped() {
         verifyNoInteractions(otpService);
-        verifyNoInteractions(twilioService);
+        verifyNoInteractions(vonageWhatsappService);
         verify(reservationRepo,never()).save(any(Reservation.class));
     }
 

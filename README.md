@@ -1,6 +1,6 @@
 # ⚡ VoltBook — EV Charging Reservation Backend
 
-![Java](https://img.shields.io/badge/Java-21-orange) ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5-green) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue) ![Azure](https://img.shields.io/badge/Azure-Blob%20%2B%20OCR-blue) ![Twilio](https://img.shields.io/badge/Twilio-SMS-red) ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED)
+![Java](https://img.shields.io/badge/Java-21-orange) ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5-green) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue) ![Azure](https://img.shields.io/badge/Azure-Blob%20%2B%20OCR-blue) ![Vonage](https://img.shields.io/badge/Vonage-WhatsApp-brightgreen) ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED)
 
 A production-oriented REST API backend for an electric vehicle charging reservation platform, targeting Tesla vehicles in Tunisia.
 
@@ -17,7 +17,7 @@ It demonstrates real-world backend engineering decisions:
 - **Cloud document pipeline** — Carte Grise images uploaded to Azure Blob Storage, analyzed by Azure Document Intelligence OCR, with VIN and plate extraction and matching
 - **Async event-driven verification** — car verification runs in a background thread via Spring's `@Async` + `TransactionalEventListener`, keeping the API response instant
 - **Security-first design** — JWT access + refresh token rotation, BCrypt hashing, role-based access control, and user status gating (`INACTIVE → ACTIVE` lifecycle)
-- **Anti-abuse mechanisms** — OTP resend throttling delegated to Twilio, car verification attempt tracking with 24h block/unblock scheduler
+- **Anti-abuse mechanisms** — OTP resend throttling delegated to Vonage WhatsApp, car verification attempt tracking with 24h block/unblock scheduler
 - **Geospatial queries** — PostgreSQL `earthdistance` extension for radius-based station discovery, returning distance-aware payloads
 - **Domain-driven architecture** — clean separation of Controllers, Services, Repositories, Domain, DTOs, Cloud integrations, and Security
 
@@ -29,7 +29,7 @@ Electric vehicle charging requires trust, availability, and a smooth user experi
 
 This backend solves that by combining:
 
-- **Identity and account security** — two-factor account verification (email OTP + SMS via Twilio) with JWT-based stateless auth
+- **Identity and account security** — two-factor account verification (email OTP + WhatsApp via Vonage) with JWT-based stateless auth
 - **Vehicle authenticity checks** — Azure OCR on uploaded Carte Grise documents, comparing extracted VIN and plate against user-submitted data
 - **Charging infrastructure management** — admin-secured station and port management with geospatial discovery
 - **Smart reservation flow** — OTP-confirmed reservations, NFC-based check-in, automated no-show detection, and penalty tracking
@@ -44,7 +44,7 @@ This backend solves that by combining:
 - Logout with refresh token revocation
 - Two-factor account verification:
   - Email OTP via Spring Mail (SMTP)
-  - Phone OTP via Twilio SMS
+  - Phone OTP via WhatsApp (Vonage)
 - User status machine: `INACTIVE → ACTIVE` after both verifications
 - Role-based access control: `ROLE_USER` and `ROLE_ADMIN`
 - Custom Spring Security status checker — `INACTIVE` users blocked from protected endpoints
@@ -129,7 +129,7 @@ This backend solves that by combining:
 |---|---|
 | Azure Blob Storage | Carte Grise image storage |
 | Azure Document Intelligence | OCR — VIN and plate extraction |
-| Twilio | SMS OTP delivery |
+| Vonage WhatsApp | Phone OTP delivery |
 | SMTP (Gmail) | Email OTP delivery |
 
 ### Tooling
@@ -177,7 +177,7 @@ Key design decisions:
 ```
 Register → account INACTIVE
 → email OTP sent (Spring Mail)
-→ phone OTP sent (Twilio)
+→ phone OTP sent (Vonage WhatsApp)
 → verify email → emailVerifiedAt set
 → login allowed (INACTIVE users can login after email verify)
 → verify phone → phoneVerifiedAt set → account ACTIVE
@@ -266,7 +266,7 @@ User selects car + port + slot
 
 ## Getting Started
 
-> **Demo Note:** Phone verification via Twilio SMS is paused in the live demo to preserve API credits.
+> **Demo Note:** Phone verification via Vonage WhatsApp is paused in the live demo to preserve API credits.
 > Phone verified status is set automatically on registration. The full SMS OTP flow is implemented
 > and can be re-enabled by removing the default `phoneNumberVerifiedAt` assignment in the authService.java.
 > Email verification via SMTP remains fully active.
@@ -345,10 +345,11 @@ JWT_EXPIRATION=900000
 REFRESH_TOKEN_SECRET=your_256bit_hex_secret
 REFRESH_TOKEN_EXPIRATION_DAYS=30
 
-# Twilio
-TWILIO_ACCOUNT_SID=ACxxxxx
-TWILIO_AUTH_TOKEN=your_auth_token
-TWILIO_PHONE_NUMBER=+1xxxxxxxxxx
+# Vonage WhatsApp
+VONAGE_API_KEY=your_api_key
+VONAGE_API_SECRET=your_api_secret
+VONAGE_WHATSAPP_FROM=14157386102
+VONAGE_MESSAGES_BASE_URL=https://messages-sandbox.nexmo.com/v1/messages
 
 # Spring Mail
 SPRING_MAIL_HOST=smtp.gmail.com
@@ -395,7 +396,7 @@ PORT_SCHEDULER_INTERVAL=600000
 
 ### Completed
 - [x] JWT authentication with access + refresh token rotation
-- [x] Two-factor account verification (email OTP + SMS via Twilio)
+- [x] Two-factor account verification (email OTP + WhatsApp via Vonage)
 - [x] Role-based access control (`ROLE_USER`, `ROLE_ADMIN`)
 - [x] User status gating (`INACTIVE → ACTIVE`)
 - [x] Car onboarding with Azure Blob Storage upload
