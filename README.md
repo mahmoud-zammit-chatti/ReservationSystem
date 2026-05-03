@@ -6,6 +6,13 @@ A production-oriented REST API backend for an electric vehicle charging reservat
 
 The system handles secure user onboarding, AI-powered vehicle identity verification via OCR, geospatial station discovery, port reservation with OTP confirmation, and NFC-based check-in — all built on a clean, layered Spring Boot architecture with real cloud integrations.
 
+## Live Demo
+
+Test the API directly via Swagger UI:
+👉 **[Live Swagger Documentation](https://reservationsystem-rky4.onrender.com/swagger-ui/index.html)**
+
+*Note: The backend is hosted on a free Render instance. It may take 1–2 minutes to spin up during the first request if it has been idle.*
+
 ---
 
 ## Why This Project Stands Out
@@ -386,6 +393,11 @@ PORT_SCHEDULER_INTERVAL=600000
 
 ## Testing Notes
 
+Run the test suite using Maven:
+```bash
+./mvnw test
+```
+
 - Unit and integration tests cover Spring context loading and OCR extraction logic (VIN/plate regex parsing)
 - NFC check-in can be tested via Postman by manually sending the `accessIdentifier` value — the endpoint is hardware-agnostic
 - OCR verification requires a real Azure Document Intelligence resource — mock the service for unit tests
@@ -422,4 +434,10 @@ PORT_SCHEDULER_INTERVAL=600000
 
 ---
 
-*Built by Mahmoud Zammit — Spring Boot Backend Project — 2026*
+## License
+This project is licensed under the [MIT License](LICENSE).
+
+---
+
+*Built by Mahmoud Zammit — Spring Boot Backend Project — 2026*  
+[GitHub Profile](https://github.com/mahmoud-zammit-chatti) | [LinkedIn](https://linkedin.com/in/mahmoud-zammit)

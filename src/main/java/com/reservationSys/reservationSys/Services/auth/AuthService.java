@@ -80,7 +80,7 @@ public class AuthService {
                 .status(UserStatus.INACTIVE)
                 .userRole(UserRole.USER)
                 .emailVerifiedAt(null)
-                .phoneNumberVerifiedAt(Instant.now(buisnesClock))
+                .phoneNumberVerifiedAt(null)
                 .createdAt(Instant.now(buisnesClock))
                 .build();
         UserRegistrationResponseDTO responseDTO = UserRegistrationResponseDTO.builder()
@@ -194,6 +194,7 @@ public class AuthService {
     public void verifyPhoneNumber(AppUser user, String code) {
         String phoneNumber = user.getPhoneNumber();
         if (user.getPhoneNumberVerifiedAt() != null) {
+
             throw new IncorrectCredentials("Phone number already verified ");
         }
         if (otpService.verifyOtp(user.getId(), code, ACCOUNT_PHONE_VERIFICATION)) {

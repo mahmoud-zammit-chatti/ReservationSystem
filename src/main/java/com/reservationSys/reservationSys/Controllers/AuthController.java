@@ -3,7 +3,6 @@ package com.reservationSys.reservationSys.Controllers;
 
 import com.reservationSys.reservationSys.DTOs.AuthDTOs.*;
 import com.reservationSys.reservationSys.Models.user.AppUser;
-import com.reservationSys.reservationSys.Repositories.AppUserRepo;
 import com.reservationSys.reservationSys.Services.auth.AuthService;
 import com.reservationSys.reservationSys.security.MyAppUserDetails;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -20,11 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
-    private final AppUserRepo appUserRepo;
 
-    public AuthController(AuthService authService, AppUserRepo appUserRepo) {
+
+    public AuthController(AuthService authService) {
         this.authService = authService;
-        this.appUserRepo = appUserRepo;
     }
 
     @PostMapping("/register")
@@ -76,26 +74,4 @@ public class AuthController {
         authService.resendPhoneVerification(appUser);
         return ResponseEntity.ok("Verification phone resent successfully");
     }
-
-
-    @PostMapping("/verify-phone-mock")
-    public ResponseEntity<String> verifyPhone(@Valid @RequestBody PhoneVerificationDTO request){
-
-        AppUser user = appUserRepo.findByEmail("mahmoudzammit18@gmail.com").orElseThrow(() -> new RuntimeException("User not found"));
-
-
-
-        authService.verifyPhoneNumber(user,request.getCode());
-        return ResponseEntity.ok("Phone verified successfully");
-    }
-
-    @PostMapping("/resend-verification-phone-mock")
-    public ResponseEntity<String> resendVerificationPhone(){
-        AppUser appUser = appUserRepo.findByEmail("mahmoudzammit18@gmail.com").orElseThrow(() -> new RuntimeException("User not found"));
-        authService.resendPhoneVerification(appUser);
-
-        return ResponseEntity.ok("Verification phone resent successfully");
-    }
-
-
 }
