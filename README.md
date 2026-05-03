@@ -1,6 +1,6 @@
 # ⚡ VoltBook — EV Charging Reservation Backend
 
-![Java](https://img.shields.io/badge/Java-21-orange) ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5-green) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue) ![Azure](https://img.shields.io/badge/Azure-Blob%20%2B%20OCR-blue) ![Vonage](https://img.shields.io/badge/Vonage-WhatsApp-brightgreen) ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED)
+![Java](https://img.shields.io/badge/Java-25-orange) ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5-green) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue) ![Azure](https://img.shields.io/badge/Azure-Blob%20%2B%20OCR-blue) ![Vonage](https://img.shields.io/badge/Vonage-WhatsApp-brightgreen) ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED)
 
 A production-oriented REST API backend for an electric vehicle charging reservation platform, targeting Tesla vehicles in Tunisia.
 
