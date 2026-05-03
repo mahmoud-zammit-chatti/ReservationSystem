@@ -311,7 +311,7 @@ Swagger UI: `http://localhost:8080/swagger-ui/index.html`
 <details>
 <summary>Manual setup instructions</summary>
 
-**Prerequisites:** Java 21, PostgreSQL 14+, Maven
+**Prerequisites:** Java 25, PostgreSQL 18+, Maven
 
 #### 1. Enable PostgreSQL Extensions
 
