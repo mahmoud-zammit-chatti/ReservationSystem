@@ -13,6 +13,7 @@ import com.reservationSys.reservationSys.Models.reservation.CancellationReason;
 import com.reservationSys.reservationSys.Models.reservation.Reservation;
 import com.reservationSys.reservationSys.Models.reservation.ReservationStatus;
 import com.reservationSys.reservationSys.Models.user.AppUser;
+import com.reservationSys.reservationSys.Repositories.AppUserRepo;
 import com.reservationSys.reservationSys.Repositories.CarRepo;
 import com.reservationSys.reservationSys.Repositories.PortRepo;
 import com.reservationSys.reservationSys.Repositories.ReservationRepo;
@@ -45,8 +46,10 @@ public class ReservationService {
     private final ReservationRepo reservationRepo;
     private final PortRepo portRepo;
     private final CarRepo carRepo;
+    private final AppUserRepo appUserRepo;
     private final OtpService otpService;
     private final VonageWhatsappService vonageWhatsappService;
+    private final EmailService emailService;
 
     private final ZoneId buisnessZoneId;
     private final Clock buidnessClock;
@@ -54,12 +57,14 @@ public class ReservationService {
     private final List<ReservationStatus> ACTIVESTATUS = List.of(ReservationStatus.CONFIRMED, ReservationStatus.CHECKED_IN, ReservationStatus.PENDING_OTP);
 
 
-    public ReservationService(ReservationRepo reservationRepo, PortRepo portRepo, CarRepo carRepo, OtpService otpService, VonageWhatsappService vonageWhatsappService, ZoneId buisnessZoneId, Clock buidnessClock) {
+    public ReservationService(ReservationRepo reservationRepo, PortRepo portRepo, CarRepo carRepo, AppUserRepo appUserRepo, OtpService otpService, VonageWhatsappService vonageWhatsappService, EmailService emailService, ZoneId buisnessZoneId, Clock buidnessClock) {
         this.reservationRepo = reservationRepo;
         this.portRepo = portRepo;
         this.carRepo = carRepo;
+        this.appUserRepo = appUserRepo;
         this.otpService = otpService;
         this.vonageWhatsappService = vonageWhatsappService;
+        this.emailService = emailService;
         this.buisnessZoneId = buisnessZoneId;
         this.buidnessClock = buidnessClock;
 
@@ -72,6 +77,7 @@ public class ReservationService {
 
         Port port = portRepo.findById(requestDTO.getPortId()).orElseThrow(() -> new ResourceNotFound("Port not found"));
         Car car = carRepo.findById(requestDTO.getCarId()).orElseThrow(() -> new ResourceNotFound("Car not found"));
+        AppUser user = appUserRepo.findById(userId).orElseThrow(() -> new ResourceNotFound("User not found"));
 
         if(!car.getUserId().equals(userId)){
             throw new NotAuthorizedException("You don't own this resource!!");
@@ -116,10 +122,10 @@ public class ReservationService {
         //confirmation code with SMS
         String otpCode = otpService.generateOtpForReservation(newReservation.getId(), userId, OtpPurpose.RESERVATION_CONFIRMATION);
         String otpMessage = "This is your confirmation code from the E-Car Charging Rental System: " + otpCode;
-        vonageWhatsappService.sendWhatsappMessage("+216" + requestDTO.getContactNumber(), otpMessage);
+        //vonageWhatsappService.sendWhatsappMessage("+216" + requestDTO.getContactNumber(), otpMessage);
 
         //there is the option to send with email ;
-        //emailService.sendVerificationEmail(user.getEmail(), otpCode,"Reservation verification for E-Car reservation system: ");
+        emailService.sendVerificationEmail(user.getEmail(), otpCode,"Reservation verification for E-Car reservation system sent via email: ");
 
 
         return ReservationResponseDTO.builder()

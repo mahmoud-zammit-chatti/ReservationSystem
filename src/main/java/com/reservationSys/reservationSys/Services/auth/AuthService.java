@@ -80,7 +80,7 @@ public class AuthService {
                 .status(UserStatus.INACTIVE)
                 .userRole(UserRole.USER)
                 .emailVerifiedAt(null)
-                .phoneNumberVerifiedAt(null)
+                .phoneNumberVerifiedAt(Instant.now(buisnesClock))
                 .createdAt(Instant.now(buisnesClock))
                 .build();
         UserRegistrationResponseDTO responseDTO = UserRegistrationResponseDTO.builder()
@@ -101,7 +101,7 @@ public class AuthService {
 
 
         try {
-           vonageWhatsappService.sendWhatsappMessage(user.getPhoneNumber(), codeSms); //only enable this when testing for the otp code sending otherwise this costs money!!!!!!!
+           // vonageWhatsappService.sendWhatsappMessage(user.getPhoneNumber(), codeSms); //only enable this when testing for the otp code sending otherwise this costs money!!!!!!!
             responseDTO.setSmsMsg("due to lack of credit in the api the sms sending feature is currently paused, feel free to check the code to see the implementation in authService.java line 104");
             responseDTO.setSmsSent(true);
         } catch (RestClientException e) {

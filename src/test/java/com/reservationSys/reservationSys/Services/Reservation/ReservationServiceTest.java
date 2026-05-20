@@ -18,6 +18,7 @@ import com.reservationSys.reservationSys.Models.reservation.Duration;
 import com.reservationSys.reservationSys.Models.reservation.Reservation;
 import com.reservationSys.reservationSys.Models.reservation.ReservationStatus;
 import com.reservationSys.reservationSys.Models.user.AppUser;
+import com.reservationSys.reservationSys.Repositories.AppUserRepo;
 import com.reservationSys.reservationSys.Repositories.CarRepo;
 import com.reservationSys.reservationSys.Repositories.PortRepo;
 import com.reservationSys.reservationSys.Repositories.ReservationRepo;
@@ -58,6 +59,8 @@ public class ReservationServiceTest {
     @Mock
     private ReservationRepo reservationRepo;
     @Mock
+    private AppUserRepo appUserRepo;
+    @Mock
     private OtpService otpService;
     @Mock
     private VonageWhatsappService vonageWhatsappService;
@@ -74,7 +77,7 @@ public class ReservationServiceTest {
         Instant fixedInstant = Instant.parse("2024-01-01T10:00:00Z");
         Clock fixedClock = Clock.fixed(fixedInstant, ZoneId.systemDefault());
 
-        reservationService = new ReservationService(reservationRepo, portRepo, carRepo, otpService, vonageWhatsappService, realZoneId, fixedClock);
+        reservationService = new ReservationService(reservationRepo, portRepo, carRepo,appUserRepo,  otpService, vonageWhatsappService, emailService, realZoneId, fixedClock);
     }
 
     //tests for adding new reservations
