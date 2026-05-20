@@ -102,7 +102,7 @@ public class AuthService {
 
         try {
            // vonageWhatsappService.sendWhatsappMessage(user.getPhoneNumber(), codeSms); //only enable this when testing for the otp code sending otherwise this costs money!!!!!!!
-            responseDTO.setSmsMsg("due to lack of credit in the api the sms sending feature is currently paused, feel free to check the code to see the implementation in authService.java line 104");
+            responseDTO.setSmsMsg("due to lack of credit in the api the sms sending feature is currently paused, feel free to check the code to see the implementation in authService.java");
             responseDTO.setSmsSent(true);
         } catch (RestClientException e) {
             log.warn("SMS failed for user {}: {}", user.getId(), e.getMessage());

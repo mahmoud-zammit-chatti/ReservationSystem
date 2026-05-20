@@ -137,7 +137,7 @@ This backend solves that by combining:
 | Azure Blob Storage | Carte Grise image storage |
 | Azure Document Intelligence | OCR — VIN and plate extraction |
 | Vonage WhatsApp | Phone OTP delivery |
-| SMTP (Gmail) | Email OTP delivery |
+| Resend API | Email OTP delivery |
 
 ### Tooling
 | Tool | Purpose |

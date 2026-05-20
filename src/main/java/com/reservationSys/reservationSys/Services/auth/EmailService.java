@@ -1,31 +1,39 @@
 package com.reservationSys.reservationSys.Services.auth;
 
 
+import com.resend.Resend;
+import com.resend.core.exception.ResendException;
+import com.resend.services.emails.model.CreateEmailOptions;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.MailSendException;
 import org.springframework.stereotype.Service;
 
 @Service
 public class EmailService {
 
-    @Value("${spring.mail.username}")
-    private String email;
+    private final Resend resend;
+    private final String from;
 
-    private final JavaMailSender mailSender;
-
-    public EmailService(JavaMailSender mailSender) {
-        this.mailSender = mailSender;
+    public EmailService(
+            @Value("${resend.api-key}") String apiKey,
+            @Value("${resend.from}") String from
+    ) {
+        this.resend = new Resend(apiKey);
+        this.from = from;
     }
 
     public void sendVerificationEmail(String to, String verificationCode, String subject) {
-        SimpleMailMessage message = new SimpleMailMessage();
+        CreateEmailOptions message = CreateEmailOptions.builder()
+                .from(from)
+                .to(to)
+                .subject(subject)
+                .text("this is your confirmation code : " + verificationCode)
+                .build();
 
-        message.setTo(to);
-        message.setSubject(subject);
-        message.setText("this is your confirmation code : " + verificationCode);
-        message.setFrom(email);
-
-        mailSender.send(message);
+        try {
+            resend.emails().send(message);
+        } catch (ResendException e) {
+            throw new MailSendException("Resend email failed for recipient: " + to, e);
+        }
     }
 }
