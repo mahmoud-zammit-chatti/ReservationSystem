@@ -1,8 +1,8 @@
 # ⚡ VoltBook — EV Charging Reservation Backend
 
-![Java](https://img.shields.io/badge/Java-25-orange) ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5-green) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue) ![Azure](https://img.shields.io/badge/Azure-Blob%20%2B%20OCR-blue) ![Vonage](https://img.shields.io/badge/Vonage-WhatsApp-brightgreen) ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED)
+![Java](https://img.shields.io/badge/Java-25-orange) ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5-green) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18-blue) ![Azure](https://img.shields.io/badge/Azure-Blob%20%2B%20OCR-blue) ![Vonage](https://img.shields.io/badge/Vonage-WhatsApp-brightgreen) ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED)
 
-A production-oriented REST API backend for an electric vehicle charging reservation platform, targeting Tesla vehicles in Tunisia.
+A production-oriented REST API backend for an electric vehicle charging reservation platform, targeting electric vehicles in Tunisia.
 
 The system handles secure user onboarding, AI-powered vehicle identity verification via OCR, geospatial station discovery, port reservation with OTP confirmation, and NFC-based check-in — all built on a clean, layered Spring Boot architecture with real cloud integrations.
 
@@ -50,8 +50,8 @@ This backend solves that by combining:
 - JWT access token (15–30 min expiry) + refresh token (7 days) with rotation on use
 - Logout with refresh token revocation
 - Two-factor account verification:
-  - Email OTP via Spring Mail (SMTP)
-  - Phone OTP via WhatsApp (Vonage)
+    - Email OTP via Spring Mail (SMTP)
+    - Phone OTP via WhatsApp (Vonage)
 - User status machine: `INACTIVE → ACTIVE` after both verifications
 - Role-based access control: `ROLE_USER` and `ROLE_ADMIN`
 - Custom Spring Security status checker — `INACTIVE` users blocked from protected endpoints
@@ -60,15 +60,15 @@ This backend solves that by combining:
 - Add a car with plate number, chassis number (VIN), and Carte Grise image upload
 - Image stored securely in Azure Blob Storage (private container, AES-256 encrypted at rest, HTTPS in transit)
 - Async verification triggered via `TransactionalEventListener` after DB commit:
-  - Image downloaded from Azure Blob
-  - Sent to Azure Document Intelligence (`prebuilt-read` model)
-  - OCR result parsed page-by-page for VIN (`17-char regex: [A-HJ-NPR-Z0-9]{17}`) and Tunisian plate patterns
-  - Extracted values compared against user-submitted data
+    - Image downloaded from Azure Blob
+    - Sent to Azure Document Intelligence (`prebuilt-read` model)
+    - OCR result parsed page-by-page for VIN (`17-char regex: [A-HJ-NPR-Z0-9]{17}`) and Tunisian plate patterns
+    - Extracted values compared against user-submitted data
 - Verification retry flow with anti-abuse logic:
-  - Failed attempts tracked on `Car` entity
-  - Car blocked (`BLOCKED`) after 5 consecutive failures
-  - 24-hour unblock via scheduled batch job (every 10 min) + immediate unblock on user request if 24h passed
-  - `BlockedCarException` returns hours and minutes remaining
+    - Failed attempts tracked on `Car` entity
+    - Car blocked (`BLOCKED`) after 5 consecutive failures
+    - 24-hour unblock via scheduled batch job (every 10 min) + immediate unblock on user request if 24h passed
+    - `BlockedCarException` returns hours and minutes remaining
 
 ### 3. Station and Port Management (Admin)
 - Admin-secured CRUD for stations (name, address, GPS coordinates)
