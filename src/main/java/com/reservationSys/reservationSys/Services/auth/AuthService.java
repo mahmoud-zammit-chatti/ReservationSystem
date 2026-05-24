@@ -184,6 +184,9 @@ public class AuthService {
         }
         if (vonageWhatsappService.verifyEmailCode(user.getId(), code)) {
             user.setEmailVerifiedAt(Instant.now(buisnesClock));
+            if(user.getPhoneNumberVerifiedAt()!=null){
+                user.setStatus(UserStatus.ACTIVE);
+            }
             appUserRepo.save(user);
         } else {
             throw new IncorrectCredentials("Invalid verification code for email: " + email);

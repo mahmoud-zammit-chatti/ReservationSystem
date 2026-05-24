@@ -125,11 +125,6 @@
 			<artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>com.resend</groupId>
-			<artifactId>resend-java</artifactId>
-			<version>4.13.0</version>
-		</dependency>
 
 
 		<!-- Source: https://mvnrepository.com/artifact/com.azure/azure-storage-blob -->

@@ -99,6 +99,8 @@ public class ReservationServiceTest {
         when(portRepo.findById(port.getId())).thenReturn(Optional.of(port));
         when(carRepo.findById(car.getId())).thenReturn(Optional.of(car));
 
+        when(appUserRepo.findById(user.getId())).thenReturn(Optional.of(user));
+
         when(reservationRepo.findConflictedReservations(port.getId(), instant, instant.plus(requestDTO.getDuration().getHours(), ChronoUnit.HOURS), ACTIVESTATUS.stream().map(Enum::name).toList())).thenReturn(List.of());
 
         when(otpService.generateOtpForReservation(any(), eq(user.getId()), eq(OtpPurpose.RESERVATION_CONFIRMATION)))
@@ -113,7 +115,7 @@ public class ReservationServiceTest {
 
 
         verify(otpService, times(1)).generateOtpForReservation(any(), eq(user.getId()), eq(OtpPurpose.RESERVATION_CONFIRMATION));
-        verify(vonageWhatsappService, times(1)).sendWhatsappMessage(eq("+21612345678"), eq("This is your confirmation code from the E-Car Charging Rental System: 123456"));
+        verify(emailService, times(1)).sendVerificationEmail(eq("test@gmail.com"), eq("123456"),eq("Reservation verification for E-Car reservation system sent via email: "));
         verify(reservationRepo, times(1)).save(reservationCaptor.capture());
 
         Reservation savedReservation = reservationCaptor.getValue();
@@ -135,7 +137,7 @@ public class ReservationServiceTest {
         Car car = createCar(user.getId(), CarStatus.VERIFIED);
 
         ReservationAddRequestDTO requestDTO = createRequestDTO(car.getId(), port.getId());
-
+        when(appUserRepo.findById(user.getId())).thenReturn(Optional.of(user));
         when(portRepo.findById(port.getId())).thenReturn(Optional.of(port));
         when(carRepo.findById(car.getId())).thenReturn(Optional.of(car));
 
@@ -154,6 +156,7 @@ public class ReservationServiceTest {
         Car car = createCar(UUID.randomUUID(), CarStatus.VERIFIED); // Car owned by another user
 
         ReservationAddRequestDTO requestDTO = createRequestDTO(car.getId(), port.getId());
+        when(appUserRepo.findById(user.getId())).thenReturn(Optional.of(user));
         when(portRepo.findById(port.getId())).thenReturn(Optional.of(port));
         when(carRepo.findById(car.getId())).thenReturn(Optional.of(car));
 
@@ -166,18 +169,19 @@ public class ReservationServiceTest {
 
     @Test
     void addReservation_WhenCarIsNotVerified() {
-        AppUser appUser = createDefaultUser();
+        AppUser user = createDefaultUser();
 
         Port port = createPort(PortStatus.AVAILABLE);
 
-        Car car = createCar(appUser.getId(), CarStatus.UNVERIFIED); // Car not verified
+        Car car = createCar(user.getId(), CarStatus.UNVERIFIED); // Car not verified
 
         ReservationAddRequestDTO requestDTO = createRequestDTO(car.getId(), port.getId());
 
+        when(appUserRepo.findById(user.getId())).thenReturn(Optional.of(user));
         when(portRepo.findById(port.getId())).thenReturn(Optional.of(port));
         when(carRepo.findById(car.getId())).thenReturn(Optional.of(car));
 
-        assertThrows(CarNotVerifiedException.class, () -> reservationService.addReservation(requestDTO, appUser.getId()));
+        assertThrows(CarNotVerifiedException.class, () -> reservationService.addReservation(requestDTO, user.getId()));
 
         reservationAdditionStopped();
     }
@@ -196,6 +200,7 @@ public class ReservationServiceTest {
 
         ZoneId tunisiaId = ZoneId.of("Africa/Tunis");
         Instant instant = requestDTO.getStartDate().atTime(requestDTO.getStartTimeHour(), 0).atZone(tunisiaId).toInstant();
+        when(appUserRepo.findById(user.getId())).thenReturn(Optional.of(user));
         when(portRepo.findById(port.getId())).thenReturn(Optional.of(port));
         when(carRepo.findById(car.getId())).thenReturn(Optional.of(car));
 
@@ -423,6 +428,7 @@ public class ReservationServiceTest {
         AppUser user = new AppUser();
         user.setId(UUID.randomUUID());
         user.setPhoneNumber("12345678");
+        user.setEmail("test@gmail.com");
         return user;
     }
 
